@@ -7,18 +7,26 @@
 
 import Foundation
 
-protocol DataInteractor {
-    func login(username: String, password: String) async -> URLRequestResult
-    var isLoggedIn: Bool { get set }
+struct ServerResponse<Content: Codable>: Codable {
+    let metadata: Metadata?
+    let items: Content?
+    let data: Content?
+    
+    var content: Content? {
+        return items ?? data
+    }
 }
 
-struct ServerResponse<Content: Codable>: Codable {
-    let data: Content
+struct Metadata: Codable {
+    let page: Int?
+    let total: Int?
+    let per: Int?
 }
 
 struct NetworkResponse<JSON: Codable> {
     let data: JSON
     let status: URLRequestResult
+    let metadata: Metadata?
 }
 
 enum URLRequestResult: Int {
@@ -28,7 +36,7 @@ enum URLRequestResult: Int {
 }
 
 @Observable
-class NetworkInteractor: DataInteractor {
+class NetworkInteractor {
     static let shared = NetworkInteractor(isLoggedIn: KeychainManager.shared.hasToken)
     var isLoggedIn: Bool
     private init(isLoggedIn: Bool) {
@@ -48,30 +56,44 @@ class NetworkInteractor: DataInteractor {
         return .appUnavailable
     }
     
-    private func perform<JSON: Codable>(request: URLRequest, statusCode: Int = 200, responseType: JSON.Type) async -> NetworkResponse<JSON>? {
+    func mangasArray(collectionType: CollectionViewType) async -> (status: URLRequestResult, mangas: [Manga]?) {
+        let url: URL? = collectionType == .best ? .bestMangas : .mangas
+        guard let url else { return (.badRequest, nil) }
+        let getRequest: URLRequest = .get(url: url)
+        let response = await perform(request: getRequest, responseType: [Manga].self)
+        return (response?.status ?? .appUnavailable, response?.data)
+    }
+    
+    func perform<JSON: Codable>(request: URLRequest, statusCode: Int = 200, responseType: JSON.Type) async -> NetworkResponse<JSON>? {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse,
                   httpResponse.statusCode == statusCode else { return nil }
             
-            if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"), contentType.contains("application/json") {
-                let decoder = JSONDecoder()
-                decoder.keyDecodingStrategy = .convertFromSnakeCase
-                let decodedData = try decoder.decode(ServerResponse<JSON>.self, from: data).data
-                return NetworkResponse(data: decodedData, status: .ok)
-            } else if let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"), contentType.contains("text/plain") {
-                if let plainText = String(data: data, encoding: .utf8), responseType == LoginResponse.self {
-                    let userResponse = UserResponse(authToken: plainText)
-                    if let loginResponse = LoginResponse(user: userResponse) as? JSON {
-                        return NetworkResponse(data: loginResponse, status: .ok)
-                    }
-                }
-                return nil
-            } else {
-                return nil
+            guard let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"), contentType.contains("application/json") else {
+                return decodedDataForPlainText(data: data, responseType: responseType)
             }
+            
+            return self.decodedDataForJSONObject(data: data, responseType: responseType)
         } catch {
             return nil
         }
+    }
+    
+    private func decodedDataForPlainText<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
+        guard let plainText = String(data: data, encoding: .utf8), responseType == LoginResponse.self else { return nil }
+        let userResponse = UserResponse(authToken: plainText)
+        guard let loginResponse = LoginResponse(user: userResponse) as? JSON else { return nil }
+        return NetworkResponse(data: loginResponse, status: .ok, metadata: nil)
+    }
+    
+    private func decodedDataForJSONObject<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        do {
+            let serverResponse = try decoder.decode(ServerResponse<JSON>.self, from: data)
+            return NetworkResponse(data: serverResponse.content!, status: .ok, metadata: serverResponse.metadata)
+        } catch { return nil }
     }
 }

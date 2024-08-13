@@ -12,21 +12,21 @@ class LoginModel {
     var username: String = ""
     var password: String = ""
     var showAlert: Bool = false
+    var interactor: NetworkInteractor
 
-    var interactor: DataInteractor
-
-    init(interactor: DataInteractor = NetworkInteractor.shared) {
+    init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
     }
     
     func login() {
         Task {
             let value = await interactor.login(username: username, password: password)
-            if value == .ok {
-                interactor.isLoggedIn = true
-            } else {
+            
+            guard value == .ok else {
                 showAlert = true
+                return
             }
+            interactor.isLoggedIn = true
         }
     }
     

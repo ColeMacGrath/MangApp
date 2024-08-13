@@ -46,4 +46,19 @@ extension Date {
 
 extension URL {
     static let login = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.login.rawValue)
+    static let mangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.mangas.rawValue)
+    static let bestMangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.bestMangas.rawValue)
+    
+    static func mangas(page: Int, per: Int, collectionType: CollectionViewType) -> URL? {
+        guard let url = APIConfig.baseURL?
+            .appending(path: APIConfig.APIEndpoints.list.rawValue)
+            .appending(path: collectionType == .mangas ? APIConfig.APIEndpoints.mangas.rawValue : APIConfig.APIEndpoints.bestMangas.rawValue) else { return nil }
+        
+        guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
+        components.queryItems = [
+            URLQueryItem(name: "page", value: String(page)),
+            URLQueryItem(name: "per", value: String(per))
+        ]
+        return components.url
+    }
 }

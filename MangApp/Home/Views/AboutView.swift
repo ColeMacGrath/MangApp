@@ -25,7 +25,9 @@ struct AboutView: View {
                     }
                 }
             }
+#if !os(macOS)
             .navigationBarTitle("About", displayMode: .inline)
+#endif
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Done") {

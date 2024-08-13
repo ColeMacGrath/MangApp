@@ -56,7 +56,9 @@ struct MangaDetailsListView: View {
             if modalPresentation {
                 NavigationStack {
                     contentView
+#if !os(macOS)
                         .navigationBarTitle("Manga Details", displayMode: .inline)
+#endif
                         .toolbar {
                             ToolbarItem(placement: .confirmationAction) {
                                 Button("Done") {
@@ -92,7 +94,11 @@ struct MangaDetailsListView: View {
                                       rowTitle == "Visit in MyAnimeList",
                                       let url = manga.url?.toURL {
                                 Button(action: {
+#if os(macOS)
+                                    NSWorkspace.shared.open(url)
+#else
                                     UIApplication.shared.open(url)
+#endif
                                 }) {
                                     HStack {
                                         SubtitleRowView(title: rowTitle, subtitle: url.absoluteString)

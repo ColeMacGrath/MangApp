@@ -13,7 +13,11 @@ struct SubtitleRowView: View {
     var body: some View {
         VStack(alignment: .leading) {
             Text(title)
-                .foregroundStyle(Color(uiColor: .label))
+#if os(macOS)
+                .foregroundStyle(Color(.labelColor))
+#else
+                .foregroundStyle(Color(.label))
+#endif
                 .bold()
             Text(subtitle)
         }

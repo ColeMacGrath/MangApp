@@ -9,7 +9,9 @@ import SwiftUI
 
 struct AsyncMangaImageView: View {
     var geometry: GeometryProxy
+#if !os(macOS)
     var motionManager = MotionManager()
+#endif
     var url: URL
     @Environment(\.horizontalSizeClass) private var horizontalSize
     @State private var angle: Double = 0

@@ -8,15 +8,17 @@
 import SwiftUI
 
 struct DashboardView: View {
-    private let sampleMangas = [].getMangaArray()
+    @Environment(DashboardModel.self) private var model
     @State private var showAboutView = false
     
     var body: some View {
+        @Bindable var model = model
         NavigationStack {
-            MangaHorizontalScrollView(title: "My Collection", mangas: sampleMangas)
-            MangaHorizontalScrollView(title: "The Best", mangas: sampleMangas)
+            MangaHorizontalScrollView(title: "My Collection", mangas: $model.mangaCollection.wrappedValue)
+            MangaHorizontalScrollView(title: "The Best", mangas: $model.bestMangas.wrappedValue)
                 .navigationTitle("Home")
                 .toolbar {
+#if !os(macOS)
                     ToolbarItem(placement: .navigationBarTrailing) {
                         Button {
                             showAboutView = true
@@ -24,10 +26,13 @@ struct DashboardView: View {
                             Image(systemName: "person.circle.fill")
                         }
                     }
+#endif
                 }
                 .sheet(isPresented: $showAboutView) {
                     AboutView()
                 }
+        }.onAppear {
+            model.loadCollecion()
         }
     }
     
@@ -37,5 +42,6 @@ struct DashboardView: View {
 #Preview {
     NavigationStack {
         DashboardView()
+            .environment(DashboardModel())
     }
 }

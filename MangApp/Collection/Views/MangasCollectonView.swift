@@ -9,18 +9,27 @@ import SwiftUI
 
 struct MangasCollectonView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
-    var mangas: [Manga]
-    var title: String
+    @Environment(CollectionModel.self) private var model
     @State private var columns: [GridItem] = []
+    var title: String
     
     var body: some View {
+        @Bindable var model = model
+        
         GeometryReader { geometry in
             ScrollView {
                 LazyVGrid(columns: columns) {
-                    ForEach(mangas, id: \.self) { manga in
+                    ForEach(model.mangaList, id: \.self) { manga in
                         NavigationLink(destination: MangaDetailView(manga: manga)) {
                             MangaItemView(manga: manga)
                         }
+                    }
+                    
+                    if model.hasMorePages {
+                        ProgressView()
+                            .onAppear {
+                                model.loadMoreMangas()
+                            }
                     }
                 }
                 .padding(.horizontal)
@@ -28,9 +37,13 @@ struct MangasCollectonView: View {
             .navigationTitle(title)
             .onAppear {
                 updateColumns(isCompact: horizontalSizeClass == .compact)
+                model.loadInitialMangas()
             }
             .onChange(of: geometry.size) {
                 updateColumns(isCompact: horizontalSizeClass == .compact)
+            }
+            .refreshable {
+                model.reloadMangas()
             }
         }
     }
@@ -41,5 +54,6 @@ struct MangasCollectonView: View {
 }
 
 #Preview {
-    MangasCollectonView(mangas: [].getMangaArray(), title: "My Collection")
+    MangasCollectonView(title: "My Collection")
+        .environment(CollectionModel(collectionType: .best))
 }

@@ -24,13 +24,21 @@ struct MangaDetailView: View {
                        !isOnPreview {
                         AsyncMangaImageView(geometry: geometry, url: url)
                     } else {
+#if os(macOS)
+                        Image("manga_cover_image")
+                            .resizable()
+                            .aspectRatio(0.66, contentMode: .fit)
+                            .mask(RoundedRectangle(cornerRadius: 10.0))
+                            .padding()
+#else
                         Image(.mangaCover)
                             .resizable()
                             .aspectRatio(0.66, contentMode: .fit)
                             .mask(RoundedRectangle(cornerRadius: 10.0))
                             .padding()
+#endif
+                        
                     }
-                    
                     
                     MangaDetailTitlesView(manga: manga)
                     Button(action: {

@@ -19,9 +19,9 @@ struct SearchView: View {
     private var filteredMangas: [Manga] {
         mangas.filter { manga in
             let matchesSearchText = searchText.isEmpty ||
-                manga.title.localizedCaseInsensitiveContains(searchText) ||
-                manga.authors.contains(where: { $0.firstName.localizedCaseInsensitiveContains(searchText) || $0.lastName.localizedCaseInsensitiveContains(searchText) })
-        
+            manga.title.localizedCaseInsensitiveContains(searchText) ||
+            manga.authors.contains(where: { $0.firstName.localizedCaseInsensitiveContains(searchText) || $0.lastName.localizedCaseInsensitiveContains(searchText) })
+            
             let mangaGenreNames = Set(manga.genres.map { $0.genre })
             let selectedGenreNames = Set(selectedGenres.map { $0.genre })
             
@@ -40,13 +40,17 @@ struct SearchView: View {
         NavigationStack {
             VStack {
                 SearchBar(text: $searchText)
-                MangasCollectonView(mangas: filteredMangas, title: "Search")
+                TemporalCollectionView(mangas: filteredMangas, title: "Search")
             }
             .navigationTitle("Search Mangas")
             .toolbar {
+#if os(macOS)
+                FilterMenu(genres: genres, selectedGenres: $selectedGenres, demographics: demographics, selectedDemographics: $selectedDemographics, themes: themes, selectedThemes: $selectedThemes)
+#else
                 ToolbarItem(placement: .navigationBarTrailing) {
                     FilterMenu(genres: genres, selectedGenres: $selectedGenres, demographics: demographics, selectedDemographics: $selectedDemographics, themes: themes, selectedThemes: $selectedThemes)
                 }
+#endif
             }
         }
     }
@@ -54,6 +58,34 @@ struct SearchView: View {
 
 #Preview {
     NavigationStack {
-        SearchView()
+        TemporalCollectionView(mangas: [].getMangaArray(), title: "Search")
+    }
+}
+
+struct TemporalCollectionView: View {
+    @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @State private var columns: [GridItem] = []
+    var mangas: [Manga]
+    var title: String
+    
+    var body: some View {
+        GeometryReader { geometry in
+            ScrollView {
+                LazyVGrid(columns: columns) {
+                    ForEach(mangas, id: \.self) { manga in
+                        NavigationLink(destination: MangaDetailView(manga: manga)) {
+                            MangaItemView(manga: manga)
+                        }
+                    }                }
+                .padding(.horizontal)
+            }
+            .navigationTitle(title)
+        }.onAppear {
+            updateColumns(isCompact: horizontalSizeClass == .compact)
+        }
+    }
+    
+    private func updateColumns(isCompact: Bool) {
+        columns = Array(repeating: .init(.flexible()), count: isCompact ? 3 : 5)
     }
 }

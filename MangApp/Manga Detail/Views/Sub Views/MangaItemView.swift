@@ -30,8 +30,14 @@ struct MangaItemView: View {
                     }
                 }
             } else {
+#if os(macOS)
+                Image("manga_cover_image")
+                    .mangaViewImageModifier()
+#else
                 Image(.mangaCover)
                     .mangaViewImageModifier()
+#endif
+                    
             }
             Text(manga.title)
                 .font(.headline)

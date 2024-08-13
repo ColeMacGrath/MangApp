@@ -39,10 +39,11 @@ extension URLRequest {
         }
     }
     
-    static func get(url: URL, isAuthenticated: Bool = false) throws -> URLRequest {
+    static func get(url: URL, isAuthenticated: Bool = false) -> URLRequest {
         var request = URLRequest(url: url)
         request.httpMethod = "GET"
         request.setValue("application/json", forHTTPHeaderField: "Accept")
+        
         /*if isAuthenticated {
          guard let token = KeychainHelper.standard.read() else {
          throw URLRequestError.missingToken
@@ -54,6 +55,7 @@ extension URLRequest {
          
          request.addValue("Bearer \(strToken)", forHTTPHeaderField: "Authorization")
          }*/
+        
         return request
     }
     

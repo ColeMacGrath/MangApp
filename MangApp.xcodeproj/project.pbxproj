@@ -33,7 +33,10 @@
 		B343C12B2C68855C00DD9BF0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				Collection/MangasCollectonView.swift,
+				Collection/Models/CollectionModel.swift,
+				Collection/Models/CollectionViewType.swift,
+				Collection/Views/MangasCollectonView.swift,
+				Home/Models/DashboardModel.swift,
 				Home/Views/AboutView.swift,
 				Home/Views/DashboardView.swift,
 				"Home/Views/Sub Views/SelectableItem.swift",

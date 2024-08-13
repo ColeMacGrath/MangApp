@@ -13,7 +13,8 @@ struct InitialView: View {
     var body: some View {
         @Bindable var model = model
         
-        if KeychainManager.shared.hasToken {
+        if model.interactor.isLoggedIn,
+           KeychainManager.shared.hasToken {
             SelectableItemsView()
         } else {
             LoginView()

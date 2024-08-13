@@ -15,7 +15,7 @@ class Manga: Codable, Identifiable, Hashable {
     var status: String
     var startDate: Date?
     var score: Double
-    var sypnosis: String
+    var sypnosis: String?
     var genres: [Genre]
     var authors: [Author]
     var demographics: [Demographic]
@@ -36,10 +36,10 @@ class Manga: Codable, Identifiable, Hashable {
         status: String,
         startDate: Date,
         score: Double,
-        sypnosis: String,
         genres: [Genre],
         authors: [Author],
         demographics: [Demographic],
+        sypnosis: String? = nil,
         themes: [Theme]? = nil,
         titleEnglish: String? = nil,
         background: String? = nil,
@@ -78,7 +78,6 @@ class Manga: Codable, Identifiable, Hashable {
             status: "finished",
             startDate: Date(),
             score: 7.03,
-            sypnosis: "Mitsuo Shiozu is a lonely high school student who happens to be psychic. Spirits use his body and mind to communicate with the dead and to help the living. These ghostly apparitions use Mitsuo in order to put right things that were left undone in life, or to tie up ends that were left loose before they left the land of the living.\n\nIn the process, Mitsuo often finds that these 'visitations' change his own life in ways he could not predict. (Source: Tokyopop)",
             genres: [
                 Genre(id: "F974BCB6-B002-44A6-A224-90D1E50595A2", genre: "Comedy"),
                 Genre(id: "D974BCB6-B002-44A6-A224-90D1E50595A2", genre: "Drama")
@@ -91,6 +90,7 @@ class Manga: Codable, Identifiable, Hashable {
                 Demographic(id: "C217B404-7691-4090-9775-9E63375EBF5B", demographic: "Shoujo"),
                 Demographic(id: "A217B404-7691-4090-9775-9E63375EBF5B", demographic: "Other Demographic")
             ],
+            sypnosis: "Mitsuo Shiozu is a lonely high school student who happens to be psychic. Spirits use his body and mind to communicate with the dead and to help the living. These ghostly apparitions use Mitsuo in order to put right things that were left undone in life, or to tie up ends that were left loose before they left the land of the living.\n\nIn the process, Mitsuo often finds that these 'visitations' change his own life in ways he could not predict. (Source: Tokyopop)",
             themes: [
                 Theme(id: "0", theme: "Manga Themes"),
                 Theme(id: "1", theme: "Other Theme")
@@ -208,27 +208,26 @@ extension Array {
         }()
         
         guard let jsonData = loadJSONFromFile(named: "Mangas") else { return [] }
+        
         let decoder = JSONDecoder()
-                
-                decoder.dateDecodingStrategy = .formatted(dateFormatter)
-                
-                // Custom URL decoding strategy
-                decoder.dataDecodingStrategy = .custom { decoder -> Data in
-                    let container = try decoder.singleValueContainer()
-                    let urlString = try container.decode(String.self).trimmingCharacters(in: CharacterSet(charactersIn: "\""))
-                    if let url = URL(string: urlString), let data = url.absoluteString.data(using: .utf8) {
-                        return data
-                    } else {
-                        throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid URL string.")
-                    }
-                }
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
-            do {
-                let mangaList = try decoder.decode(MangaList.self, from: jsonData)
-                return mangaList.mangas
-            } catch {
-                return []
+        decoder.dataDecodingStrategy = .custom { decoder -> Data in
+            let container = try decoder.singleValueContainer()
+            let urlString = try container.decode(String.self).trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+            if let url = URL(string: urlString), let data = url.absoluteString.data(using: .utf8) {
+                return data
+            } else {
+                throw DecodingError.dataCorruptedError(in: container, debugDescription: "Invalid URL string.")
             }
+        }
+        decoder.dateDecodingStrategy = .formatted(dateFormatter)
+        
+        do {
+            let mangaList = try decoder.decode(MangaList.self, from: jsonData)
+            return mangaList.mangas
+        } catch {
+            return []
+        }
     }
     
     func getAuthorsArray() -> [Author] {
@@ -244,61 +243,43 @@ extension Array {
     
     func getDemographicsArray() -> [Demographic] {
         guard let data = loadJSONFromFile(named: "Demographics") else { return [] }
-    
+        
         do {
             let demographicStrings = try JSONDecoder().decode([String].self, from: data)
             let demographics = demographicStrings.map { Demographic(id: UUID().uuidString, demographic: $0) }
             
             return demographics
-        } catch {
-            print("Error decoding JSON: \(error)")
-            return []
-        }
+        } catch { return [] }
     }
     
     func getGenresArray() -> [Genre] {
         guard let data = loadJSONFromFile(named: "Genres") else { return [] }
-    
+        
         do {
             let genreStrings = try JSONDecoder().decode([String].self, from: data)
             let genres = genreStrings.map { Genre(id: UUID().uuidString, genre: $0) }
             
             return genres
-        } catch {
-            print("Error decoding JSON: \(error)")
-            return []
-        }
+        } catch { return [] }
     }
     
     func getThemesArray() -> [Theme] {
         guard let data = loadJSONFromFile(named: "Themes") else { return [] }
-    
+        
         do {
             let themeArray = try JSONDecoder().decode([String].self, from: data)
             let themes = themeArray.map { Theme(id: UUID().uuidString, theme: $0) }
             
             return themes
-        } catch {
-            print("Error decoding JSON: \(error)")
-            return []
-        }
+        } catch { return [] }
     }
     
     private func loadJSONFromFile(named fileName: String) -> Data? {
-        if let url = Bundle.main.url(forResource: fileName, withExtension: "json") {
-            do {
-                return try Data(contentsOf: url)
-            } catch {
-                print("Error loading JSON file: \(error)")
-            }
-        } else {
-            print("Could not find file \(fileName)")
-        }
-        return nil
+        guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else { return nil }
+        do {
+            return try Data(contentsOf: url)
+        } catch { return nil }
     }
-    
-    
-
 }
 
 //Mark: Swift Data classes

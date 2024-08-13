@@ -11,6 +11,8 @@ import SwiftData
 @main
 struct MangApp: App {
     @State private var loginModel = LoginModel()
+    @State private var dashboardModel = DashboardModel()
+    @State private var collectionModel = CollectionModel()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -30,6 +32,8 @@ struct MangApp: App {
             InitialView()
         }
         .environment(loginModel)
+        .environment(dashboardModel)
+        .environment(collectionModel)
         .modelContainer(sharedModelContainer)
     }
 }

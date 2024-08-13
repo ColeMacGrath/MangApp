@@ -30,10 +30,12 @@ struct LoginView: View {
                     
                     RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
                         //
-                    }.fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
+                    }
+#if !os(macOS)
+                    .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
                         SelectableItemsView()
                     }
-                    
+#endif
                     Spacer()
                     
                 } else {
@@ -51,11 +53,12 @@ struct LoginView: View {
                             }
                             
                             RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
-                                //
-                            }.fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
+                            }
+#if !os(macOS)
+                            .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
                                 SelectableItemsView()
                             }
-                            
+#endif
                             Spacer()
                         }
                     }

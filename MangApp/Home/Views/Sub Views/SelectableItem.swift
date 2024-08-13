@@ -29,11 +29,13 @@ enum SelectableItem: CaseIterable, Identifiable {
         case .home:
             DashboardView()
         case .collection:
-            MangasCollectonView(mangas: [].getMangaArray(), title: "My Collection")
+            MangasCollectonView(title: "My Collection")
+                .environment(CollectionModel(collectionType: .mangas))
         case .search:
             SearchView()
         case .best:
-            MangasCollectonView(mangas: [].getMangaArray(), title: "The Best")
+            MangasCollectonView(title: "The Best")
+                .environment(CollectionModel(collectionType: .best))
         }
     }
 
