@@ -11,21 +11,23 @@ import Foundation
 class DashboardModel {
     var mangaCollection: [Manga] = []
     var bestMangas: [Manga] = []
-
     var interactor: NetworkInteractor
-
+    
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
     }
     
-    func loadCollecion() {
+    func loadCollection() {
         Task {
-            let (collectionResponse, bestMangasResponse) = await (interactor.mangasArray(collectionType: .mangas), interactor.mangasArray(collectionType: .best))
-            if collectionResponse.status == .ok {
-                mangaCollection = collectionResponse.mangas ?? []
+            async let collectionResponse = interactor.mangasArray(collectionType: .mangas)
+            async let bestMangasResponse = interactor.mangasArray(collectionType: .best)
+            let (collectionResult, bestMangasResult) = await (collectionResponse, bestMangasResponse)
+            
+            if collectionResult.status == .ok {
+                mangaCollection = collectionResult.mangas ?? []
             }
-            if bestMangasResponse.status == .ok {
-                bestMangas = bestMangasResponse.mangas ?? []
+            if bestMangasResult.status == .ok {
+                bestMangas = bestMangasResult.mangas ?? []
             }
         }
     }

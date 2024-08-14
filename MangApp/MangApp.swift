@@ -13,6 +13,7 @@ struct MangApp: App {
     @State private var loginModel = LoginModel()
     @State private var dashboardModel = DashboardModel()
     @State private var collectionModel = CollectionModel()
+    @State private var searchModel = SearchModel()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -34,6 +35,7 @@ struct MangApp: App {
         .environment(loginModel)
         .environment(dashboardModel)
         .environment(collectionModel)
+        .environment(searchModel)
         .modelContainer(sharedModelContainer)
     }
 }

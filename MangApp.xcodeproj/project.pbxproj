@@ -67,6 +67,7 @@
 				Models/Network/NetworkExtensions.swift,
 				Models/Network/NetworkInteractor.swift,
 				"Preview Content/Preview Assets.xcassets",
+				Search/Models/SearchModel.swift,
 				Search/SubViews/FilterMenu.swift,
 				Search/SubViews/SearchBar.swift,
 				Search/Views/SearchView.swift,

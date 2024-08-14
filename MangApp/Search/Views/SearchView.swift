@@ -8,80 +8,109 @@
 import SwiftUI
 
 struct SearchView: View {
-    @State private var searchText = ""
-    @State private var selectedDemographics: Set<Demographic> = []
-    @State private var selectedGenres: Set<Genre> = []
-    @State private var selectedThemes: Set<Theme> = []
-    private let mangas = [].getMangaArray()
-    private let demographics = [].getDemographicsArray()
-    private let genres = [].getGenresArray()
-    private let themes = [].getThemesArray()
-    private var filteredMangas: [Manga] {
-        mangas.filter { manga in
-            let matchesSearchText = searchText.isEmpty ||
-            manga.title.localizedCaseInsensitiveContains(searchText) ||
-            manga.authors.contains(where: { $0.firstName.localizedCaseInsensitiveContains(searchText) || $0.lastName.localizedCaseInsensitiveContains(searchText) })
-            
-            let mangaGenreNames = Set(manga.genres.map { $0.genre })
-            let selectedGenreNames = Set(selectedGenres.map { $0.genre })
-            
-            let mangaDemographicNames = Set(manga.demographics.map { $0.demographic })
-            let selectedDemographicNames = Set(selectedDemographics.map { $0.demographic })
-            
-            let mangaThemes = manga.themes ?? []
-            let mangaThemesNames = Set(mangaThemes.map { $0.theme })
-            let selectedThemesNames = Set(selectedThemes.map { $0.theme })
-            
-            return matchesSearchText && selectedGenreNames.isSubset(of: mangaGenreNames) && selectedDemographicNames.isSubset(of: mangaDemographicNames) && selectedThemesNames.isSubset(of: mangaThemesNames)
-        }
-    }
-
-    var body: some View {
-        NavigationStack {
-            VStack {
-                SearchBar(text: $searchText)
-                TemporalCollectionView(mangas: filteredMangas, title: "Search")
-            }
-            .navigationTitle("Search Mangas")
-            .toolbar {
-#if os(macOS)
-                FilterMenu(genres: genres, selectedGenres: $selectedGenres, demographics: demographics, selectedDemographics: $selectedDemographics, themes: themes, selectedThemes: $selectedThemes)
-#else
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    FilterMenu(genres: genres, selectedGenres: $selectedGenres, demographics: demographics, selectedDemographics: $selectedDemographics, themes: themes, selectedThemes: $selectedThemes)
-                }
-#endif
-            }
-        }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        TemporalCollectionView(mangas: [].getMangaArray(), title: "Search")
-    }
-}
-
-struct TemporalCollectionView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
+    @Environment(SearchModel.self) private var model
     @State private var columns: [GridItem] = []
-    var mangas: [Manga]
-    var title: String
     
     var body: some View {
+        @Bindable var model = model
         GeometryReader { geometry in
-            ScrollView {
-                LazyVGrid(columns: columns) {
-                    ForEach(mangas, id: \.self) { manga in
-                        NavigationLink(destination: MangaDetailView(manga: manga)) {
-                            MangaItemView(manga: manga)
+            NavigationStack {
+                VStack(alignment: .leading) {
+                    
+                    SearchBar(text: $model.searchText) {
+                        model.resetSearch()
+                        model.loadInitialMangas()
+                    }
+                    .padding(.horizontal)
+                    
+                    Picker("Select Search Type", selection: $model.selectedSearchType) {
+                        ForEach(SearchType.allCases) { searchType in
+                            Text(searchType.rawValue).tag(searchType)
                         }
-                    }                }
-                .padding(.horizontal)
+                    }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding(.horizontal)
+                    .onChange(of: model.selectedSearchType) {
+                        model.resetSearch(keepingValues: true)
+                        model.loadInitialMangas()
+                    }
+                    .onChange(of: model.selectedGenres) {
+                        model.resetSearch(keepingValues: true)
+                    }
+                    
+                    
+                    
+                    if model.isLoading {
+                        ProgressView("Loading...")
+                            .padding()
+                    } else if model.hasError {
+                        VStack {
+                            Text(model.errorMessage)
+                                .font(.callout)
+                                .foregroundColor(.red)
+                                .padding()
+                            
+                            Button("Retry") {
+                                model.loadInitialMangas()
+                            }
+                            .padding()
+                        }
+                    } else if model.mangasResults.isEmpty {
+                        Text("No results found.")
+                            .font(.callout)
+                            .foregroundColor(.secondary)
+                            .padding()
+                    } else {
+                        Text(model.selectedSearchType == .author ? "Results by Author" : "Results by Title")
+                            .font(.callout)
+                            .foregroundStyle(.secondary)
+                            .padding()
+                        
+                        ScrollView {
+                            LazyVGrid(columns: columns) {
+                                ForEach(model.mangasResults, id: \.self) { manga in
+                                    NavigationLink(destination: MangaDetailView(manga: manga)) {
+                                        MangaItemView(manga: manga)
+                                    }
+                                }
+                                
+                                if model.hasMorePages {
+                                    ProgressView()
+                                        .onAppear {
+                                            model.loadMoreMangas()
+                                        }
+                                }
+                            }
+                            .padding(.horizontal)
+                        }
+                    }
+                }
+                .navigationTitle("Search Mangas")
+                .toolbar {
+#if os(macOS)
+                    if model.filtersLoaded {
+                        FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes)
+                    }
+#else
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        if model.filtersLoaded {
+                            FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes)
+                        }
+                    }
+#endif
+                }
+                .onAppear {
+                    model.fetchFilters()
+                    updateColumns(isCompact: horizontalSizeClass == .compact)
+                }
+                .onChange(of: geometry.size) {
+                    updateColumns(isCompact: horizontalSizeClass == .compact)
+                }
+                .refreshable {
+                    model.reloadMangas()
+                }
             }
-            .navigationTitle(title)
-        }.onAppear {
-            updateColumns(isCompact: horizontalSizeClass == .compact)
         }
     }
     

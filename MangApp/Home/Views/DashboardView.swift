@@ -32,7 +32,7 @@ struct DashboardView: View {
                     AboutView()
                 }
         }.onAppear {
-            model.loadCollecion()
+            model.loadCollection()
         }
     }
     

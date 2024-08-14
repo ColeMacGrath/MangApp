@@ -9,17 +9,35 @@ import SwiftUI
 
 struct SearchBar: View {
     @Binding var text: String
-
+    var onCommit: () -> Void
+    
     var body: some View {
-        TextField("Search...", text: $text)
+        TextField("Search...", text: $text, onCommit: onCommit)
             .padding(7)
-            .background(Color(.systemGray))
+            .padding(.horizontal, 25)
+            .background(Color(.systemGray5))
             .cornerRadius(8)
-            .padding(.horizontal, 10)
+            .overlay(
+                HStack {
+                    Image(systemName: "magnifyingglass")
+                        .foregroundColor(.gray)
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                        .padding(.leading, 8)
+                    
+                    if !text.isEmpty {
+                        Button(action: {
+                            self.text.removeAll()
+                        }) {
+                            Image(systemName: "multiply.circle.fill")
+                        }
+                        .padding(.trailing, 8)
+                    }
+                }
+            )
     }
 }
 
 
 #Preview {
-    SearchBar(text: .constant(""))
+    SearchBar(text: .constant(""), onCommit: {})
 }

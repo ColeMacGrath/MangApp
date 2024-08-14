@@ -74,7 +74,13 @@ class NetworkInteractor {
                 return decodedDataForPlainText(data: data, responseType: responseType)
             }
             
-            return self.decodedDataForJSONObject(data: data, responseType: responseType)
+            if JSON.self is [String].Type {
+                return self.decodedDataForJSONArray(data: data, responseType: responseType)
+            } else {
+                return self.decodedDataForJSONObject(data: data, responseType: responseType)
+            }
+            
+           
         } catch {
             return nil
         }
@@ -95,5 +101,18 @@ class NetworkInteractor {
             let serverResponse = try decoder.decode(ServerResponse<JSON>.self, from: data)
             return NetworkResponse(data: serverResponse.content!, status: .ok, metadata: serverResponse.metadata)
         } catch { return nil }
+    }
+    
+    private func decodedDataForJSONArray<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
+        let decoder = JSONDecoder()
+        decoder.keyDecodingStrategy = .convertFromSnakeCase
+        decoder.dateDecodingStrategy = .iso8601
+        do {
+            let decodedArray = try decoder.decode(JSON.self, from: data)
+            return NetworkResponse(data: decodedArray, status: .ok, metadata: nil)
+        } catch {
+            print("Failed to decode JSON array: \(error)")
+            return nil
+        }
     }
 }

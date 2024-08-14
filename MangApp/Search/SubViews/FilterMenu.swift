@@ -9,11 +9,11 @@ import SwiftUI
 
 struct FilterMenu: View {
     var genres: [Genre]
-    @Binding var selectedGenres: Set<Genre>
+    @Binding var selectedGenres: [Genre]
     var demographics: [Demographic]
-    @Binding var selectedDemographics: Set<Demographic>
+    @Binding var selectedDemographics: [Demographic]
     var themes: [Theme]
-    @Binding var selectedThemes: Set<Theme>
+    @Binding var selectedThemes: [Theme]
     
     var body: some View {
         Menu {
@@ -23,9 +23,9 @@ struct FilterMenu: View {
                         get: { selectedGenres.contains(genre) },
                         set: { isSelected in
                             if isSelected {
-                                selectedGenres.insert(genre)
+                                selectedGenres.append(genre)
                             } else {
-                                selectedGenres.remove(genre)
+                                selectedGenres.append(genre)
                             }
                         }
                     ))
@@ -38,9 +38,9 @@ struct FilterMenu: View {
                         get: { selectedDemographics.contains(demographic) },
                         set: { isSelected in
                             if isSelected {
-                                selectedDemographics.insert(demographic)
+                                selectedDemographics.append(demographic)
                             } else {
-                                selectedDemographics.remove(demographic)
+                                selectedDemographics.append(demographic)
                             }
                         }
                     ))
@@ -53,14 +53,29 @@ struct FilterMenu: View {
                         get: { selectedThemes.contains(theme) },
                         set: { isSelected in
                             if isSelected {
-                                selectedThemes.insert(theme)
+                                selectedThemes.append(theme)
                             } else {
-                                selectedThemes.remove(theme)
+                                selectedThemes.append(theme)
                             }
                         }
                     ))
                 }
             }
+            
+            Section {
+                Button {
+                    selectedGenres.removeAll()
+                    selectedDemographics.removeAll()
+                    selectedThemes.removeAll()
+                } label: {
+                    HStack {
+                        Text("Reset Filters")
+                            .foregroundStyle(.red)
+                        Image(systemName: "trash")
+                    }
+                }
+            }
+            
         } label: {
             Image(systemName: "slider.horizontal.3")
         }
