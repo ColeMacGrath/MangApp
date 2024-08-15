@@ -12,12 +12,14 @@ class DashboardModel {
     var mangaCollection: [Manga] = []
     var bestMangas: [Manga] = []
     var interactor: NetworkInteractor
+    private var isDataLoaded: Bool = false
     
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
     }
     
     func loadCollection() {
+        guard !isDataLoaded else { return }
         Task {
             async let collectionResponse = interactor.mangasArray(collectionType: .mangas)
             async let bestMangasResponse = interactor.mangasArray(collectionType: .best)
@@ -29,6 +31,7 @@ class DashboardModel {
             if bestMangasResult.status == .ok {
                 bestMangas = bestMangasResult.mangas ?? []
             }
+            isDataLoaded = true
         }
     }
 }

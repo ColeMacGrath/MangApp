@@ -9,94 +9,99 @@ import Foundation
 
 @Observable
 class SearchModel {
-    var searchText: String = ""
-    var selectedSearchType: SearchType = .title
-    var selectedGenres: [Genre] = []
-    var selectedDemographics: [Demographic] = []
-    var selectedThemes: [Theme] = []
-    var availableGenres: [Genre] = []
-    var availableDemographics: [Demographic] = []
-    var availableThemes: [Theme] = []
-    
-    var mangasResults: [Manga] = []
     private var currentPage: Int = 1
     private var totalItems: Int = 0
+    private var isDataLoaded: Bool = false
+    private var isBulkUpdating: Bool = false
+    private var itemsPerPage = 20
     var isLoading: Bool = false
     var hasError: Bool = false
     var errorMessage: String = ""
-    private var isDataLoaded: Bool = false
+    
+    var searchText: String = ""
+    var selectedSearchType: SearchType = .title
+    var availableGenres: [Genre] = []
+    var availableDemographics: [Demographic] = []
+    var availableThemes: [Theme] = []
+    var mangasResults: [Manga] = []
+    
     var interactor: NetworkInteractor
+    
+    var hasMorePages: Bool {
+        return mangasResults.count < totalItems
+    }
+    
+    var filtersLoaded: Bool {
+        return !availableGenres.isEmpty && !availableDemographics.isEmpty && !availableThemes.isEmpty
+    }
+    
+    var selectedGenres: [Genre] = [] {
+        didSet {
+            if !isBulkUpdating {
+                resetSearch(keepingValues: true)
+            }
+        }
+    }
+    
+    var selectedDemographics: [Demographic] = [] {
+        didSet {
+            if !isBulkUpdating {
+                resetSearch(keepingValues: true)
+            }
+        }
+    }
+    
+    var selectedThemes: [Theme] = [] {
+        didSet {
+            if !isBulkUpdating {
+                resetSearch(keepingValues: true)
+            }
+        }
+    }
     
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
     }
     
-    func resetSearch(keepingValues: Bool = false) {
-        if !keepingValues {
-            searchText = ""
-            selectedGenres.removeAll()
-            selectedDemographics.removeAll()
-            selectedThemes.removeAll()
-            mangasResults.removeAll()
-        }
-        currentPage = 1
-        totalItems = 0
-        isDataLoaded = false
-        hasError = false
-        errorMessage = ""
-    }
-    
-    func loadInitialMangas(per: Int = 20) {
-        guard !isDataLoaded else { return }
-        currentPage = 1
-        mangasResults.removeAll()
-        loadMangas(page: currentPage, per: per)
-        isDataLoaded = true
-    }
-    
-    func loadMoreMangas(per: Int = 20) {
+    private func loadMangas(page: Int, per: Int) {
         guard !isLoading else { return }
         isLoading = true
-        loadMangas(page: currentPage + 1, per: per)
-    }
-    
-    func reloadMangas(per: Int = 20) {
-        isDataLoaded = false
-        loadInitialMangas(per: per)
-    }
-    
-    private func loadMangas(page: Int, per: Int) {
-        isLoading = true
         hasError = false
+        
         Task {
             let requestBody = createRequestBody(page: page, per: per)
-            guard let url = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/search/manga") else { return }
+            guard var urlComponents = URLComponents(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/search/manga") else { return }
+            urlComponents.queryItems = [
+                URLQueryItem(name: "page", value: "\(page)"),
+                URLQueryItem(name: "per", value: "\(per)")
+            ]
+            guard let url = urlComponents.url else { return }
+            
             guard let postRequest = URLRequest.post(url: url, body: requestBody) else {
-                self.hasError = true
-                self.errorMessage = "Failed to create request."
-                self.isLoading = false
+                hasError = true
+                errorMessage = "Failed to create request."
+                isLoading = false
                 return
             }
             
             let response = await interactor.perform(request: postRequest, responseType: [Manga].self)
             guard let newMangas = response?.data else {
-                self.hasError = true
-                self.errorMessage = "Failed to load mangas. Please try again."
-                self.isLoading = false
+                hasError = true
+                errorMessage = "Failed to load mangas. Please try again."
+                isLoading = false
                 return
             }
-            self.currentPage = page
-            self.mangasResults.append(contentsOf: newMangas)
-            self.totalItems = response?.metadata?.total ?? 0
-            self.isLoading = false
+            currentPage = page
+            mangasResults.append(contentsOf: newMangas)
+            totalItems = response?.metadata?.total ?? 0
+            isLoading = false
+            isDataLoaded = true
         }
     }
     
     private func createRequestBody(page: Int = 1, per: Int = 20) -> SearchRequestBody {
         var body = SearchRequestBody(
-            searchContains: true,
-            page: page,
-            per: per
+            searchContains: true
         )
         
         if !searchText.isEmpty {
@@ -123,50 +128,70 @@ class SearchModel {
         
         return body
     }
+    
+    func resetToInitialState() {
+        isBulkUpdating = true
+        selectedGenres.removeAll()
+        selectedDemographics.removeAll()
+        selectedThemes.removeAll()
+        isBulkUpdating = false
+        resetSearch(keepingValues: true)
+    }
+    
+    func resetSearch(keepingValues: Bool = true, fromPicker: Bool = false) {
+        guard !(fromPicker && searchText.isEmpty) else { return }
+        
+        if !keepingValues {
+            searchText = ""
+            selectedGenres.removeAll()
+            selectedDemographics.removeAll()
+            selectedThemes.removeAll()
+            mangasResults.removeAll()
+        }
+        
+        currentPage = 1
+        totalItems = 0
+        hasError = false
+        errorMessage = ""
+        loadInitialMangas()
+    }
+    
+    func loadInitialMangas(per: Int = 20) {
+        guard !isLoading else { return }
+        mangasResults.removeAll()
+        loadMangas(page: 1, per: per)
+    }
+    
+    func loadMoreMangas(per: Int = 20) {
+        guard !isLoading && hasMorePages else { return }
+        loadMangas(page: currentPage + 1, per: per)
+    }
+    
     func fetchFilters() {
-        guard let demographicsURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/demographics"),
-              let genersURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/genres"),
+        guard !isDataLoaded,
+              let demographicsURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/demographics"),
+              let genresURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/genres"),
               let themesURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/themes") else { return }
+        
         let demographicsRequest = URLRequest.get(url: demographicsURL)
-        let genresRequest = URLRequest.get(url: genersURL)
+        let genresRequest = URLRequest.get(url: genresURL)
         let themesRequest = URLRequest.get(url: themesURL)
         
         Task {
             async let demographicsPerform = await interactor.perform(request: demographicsRequest, responseType: [String].self)
             async let genresPerform = await interactor.perform(request: genresRequest, responseType: [String].self)
             async let themesPerform = await interactor.perform(request: themesRequest, responseType: [String].self)
+            
             let (demographicsResponse, genresResponse, themesResponse) = await (demographicsPerform, genresPerform, themesPerform)
             
-            self.availableDemographics = demographicsResponse?.data.map { Demographic(id: UUID().uuidString, demographic: $0) } ?? []
-            self.availableGenres = genresResponse?.data.map { Genre(id: UUID().uuidString, genre: $0) } ?? []
-            self.availableThemes = themesResponse?.data.map { Theme(id: UUID().uuidString, theme: $0) } ?? []
+            availableDemographics = demographicsResponse?.data.map { Demographic(id: UUID().uuidString, demographic: $0) } ?? []
+            availableGenres = genresResponse?.data.map { Genre(id: UUID().uuidString, genre: $0) } ?? []
+            availableThemes = themesResponse?.data.map { Theme(id: UUID().uuidString, theme: $0) } ?? []
+            
+            if !availableDemographics.isEmpty || !availableGenres.isEmpty || !availableThemes.isEmpty {
+                isDataLoaded = true
+            }
         }
     }
-    
-    var hasMorePages: Bool {
-        return mangasResults.count < totalItems
-    }
-    
-    var filtersLoaded: Bool {
-        return !availableGenres.isEmpty && !availableDemographics.isEmpty && !availableThemes.isEmpty
-    }
 }
 
-enum SearchType: String, CaseIterable, Identifiable {
-    case title
-    case author
-    
-    var id: String { rawValue }
-}
-
-struct SearchRequestBody: Codable {
-    var searchTitle: String?
-    var searchAuthorFirstName: String?
-    var searchAuthorLastName: String?
-    var searchGenres: [String]?
-    var searchDemographics: [String]?
-    var searchThemes: [String]?
-    var searchContains: Bool
-    var page: Int
-    var per: Int
-}

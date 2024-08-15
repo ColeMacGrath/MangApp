@@ -14,70 +14,76 @@ struct FilterMenu: View {
     @Binding var selectedDemographics: [Demographic]
     var themes: [Theme]
     @Binding var selectedThemes: [Theme]
+    var resetAction: () -> Void
     
     var body: some View {
         Menu {
             Menu("Genres") {
-                ForEach(genres) { genre in
-                    Toggle(genre.genre, isOn: Binding(
-                        get: { selectedGenres.contains(genre) },
-                        set: { isSelected in
-                            if isSelected {
-                                selectedGenres.append(genre)
-                            } else {
-                                selectedGenres.append(genre)
+                ForEach(genres, id: \.self) { genre in
+                    Button(action: {
+                        toggleSelection(for: genre, in: &selectedGenres)
+                    }) {
+                        HStack {
+                            Text(genre.genre)
+                            if selectedGenres.contains(genre) {
+                                Image(systemName: "checkmark")
                             }
                         }
-                    ))
+                    }
                 }
             }
             
             Menu("Demographics") {
-                ForEach(demographics) { demographic in
-                    Toggle(demographic.demographic, isOn: Binding(
-                        get: { selectedDemographics.contains(demographic) },
-                        set: { isSelected in
-                            if isSelected {
-                                selectedDemographics.append(demographic)
-                            } else {
-                                selectedDemographics.append(demographic)
+                ForEach(demographics, id: \.self) { demographic in
+                    Button(action: {
+                        toggleSelection(for: demographic, in: &selectedDemographics)
+                    }) {
+                        HStack {
+                            Text(demographic.demographic)
+                            if selectedDemographics.contains(demographic) {
+                                Image(systemName: "checkmark")
                             }
                         }
-                    ))
+                    }
                 }
             }
             
-            Menu("Theme") {
-                ForEach(themes) { theme in
-                    Toggle(theme.theme, isOn: Binding(
-                        get: { selectedThemes.contains(theme) },
-                        set: { isSelected in
-                            if isSelected {
-                                selectedThemes.append(theme)
-                            } else {
-                                selectedThemes.append(theme)
+            Menu("Themes") {
+                ForEach(themes, id: \.self) { theme in
+                    Button(action: {
+                        toggleSelection(for: theme, in: &selectedThemes)
+                    }) {
+                        HStack {
+                            Text(theme.theme)
+                            if selectedThemes.contains(theme) {
+                                Image(systemName: "checkmark")
                             }
                         }
-                    ))
+                    }
                 }
             }
             
             Section {
-                Button {
-                    selectedGenres.removeAll()
-                    selectedDemographics.removeAll()
-                    selectedThemes.removeAll()
-                } label: {
+                Button(role: .destructive, action: {
+                    resetAction()
+                }) {
                     HStack {
-                        Text("Reset Filters")
-                            .foregroundStyle(.red)
                         Image(systemName: "trash")
+                        Text("Reset Filters")
                     }
                 }
             }
             
         } label: {
-            Image(systemName: "slider.horizontal.3")
+            Label("Filters", systemImage: "slider.horizontal.3")
+        }
+    }
+    
+    private func toggleSelection<T: Equatable>(for item: T, in collection: inout [T]) {
+        if let index = collection.firstIndex(of: item) {
+            collection.remove(at: index)
+        } else {
+            collection.append(item)
         }
     }
 }

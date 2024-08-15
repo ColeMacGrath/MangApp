@@ -149,6 +149,17 @@ class Author: Codable, Hashable, Identifiable {
     func hash(into hasher: inout Hasher) {
         hasher.combine(id)
     }
+    
+    var fullName: String {
+        "\(firstName) \(lastName)"
+    }
+    
+    var initials: String {
+        let firstInitial = firstName.first?.uppercased() ?? ""
+        let lastInitial = lastName.first?.uppercased() ?? ""
+        return firstInitial + lastInitial
+    }
+    
 }
 class Theme: Codable, Hashable, Identifiable {
     var id: String
@@ -398,3 +409,4 @@ extension Array {
  }
  }
  */
+

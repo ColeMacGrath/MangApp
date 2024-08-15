@@ -16,99 +16,74 @@ struct SearchView: View {
         @Bindable var model = model
         GeometryReader { geometry in
             NavigationStack {
-                VStack(alignment: .leading) {
-                    
-                    SearchBar(text: $model.searchText) {
-                        model.resetSearch()
-                        model.loadInitialMangas()
-                    }
-                    .padding(.horizontal)
-                    
-                    Picker("Select Search Type", selection: $model.selectedSearchType) {
-                        ForEach(SearchType.allCases) { searchType in
-                            Text(searchType.rawValue).tag(searchType)
+                ScrollView {
+                    VStack(alignment: .leading) {
+                        SearchBar(text: $model.searchText) {
+                            model.resetSearch()
+                        }
+                        .padding(.horizontal)
+                        
+                        SearchPicker(selectionType: $model.selectedSearchType)
+                            .padding(.horizontal)
+                            .onChange(of: model.selectedSearchType) {
+                                model.resetSearch(fromPicker: true)
+                            }
+                        
+                        if !model.mangasResults.isEmpty {
+                            SubtitleSerachView(selectionType: $model.selectedSearchType)
+                            
+                            LazyVGrid(columns: columns) {
+                                ForEach(model.mangasResults) { manga in
+                                    NavigationLink(destination: MangaDetailView(manga: manga)) {
+                                        MangaItemView(manga: manga)
+                                            .onAppear {
+                                                if manga == model.mangasResults.last {
+                                                    model.loadMoreMangas()
+                                                }
+                                            }
+                                    }
+                                }
+                            }.padding(.horizontal)
                         }
                     }
-                    .pickerStyle(SegmentedPickerStyle())
-                    .padding(.horizontal)
-                    .onChange(of: model.selectedSearchType) {
-                        model.resetSearch(keepingValues: true)
-                        model.loadInitialMangas()
+                    .navigationTitle("Search Mangas")
+                    .toolbar {
+#if os(macOS)
+                        if model.filtersLoaded {
+                            FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
+                                model.resetToInitialState()
+                            })
+                        }
+#else
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            if model.filtersLoaded {
+                                FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
+                                    model.resetToInitialState()
+                                })
+                            }
+                        }
+#endif
                     }
-                    .onChange(of: model.selectedGenres) {
-                        model.resetSearch(keepingValues: true)
+                    .onAppear {
+                        model.fetchFilters()
+                        updateColumns(isCompact: horizontalSizeClass == .compact)
                     }
-                    
-                    
-                    
-                    if model.isLoading {
+                    .onChange(of: geometry.size) {
+                        updateColumns(isCompact: horizontalSizeClass == .compact)
+                    }
+                    .refreshable {
+                        model.resetToInitialState()
+                    }
+                }.overlay {
+                    if model.isLoading,
+                       model.mangasResults.isEmpty {
                         ProgressView("Loading...")
                             .padding()
                     } else if model.hasError {
-                        VStack {
-                            Text(model.errorMessage)
-                                .font(.callout)
-                                .foregroundColor(.red)
-                                .padding()
-                            
-                            Button("Retry") {
-                                model.loadInitialMangas()
-                            }
-                            .padding()
-                        }
-                    } else if model.mangasResults.isEmpty {
-                        Text("No results found.")
-                            .font(.callout)
-                            .foregroundColor(.secondary)
-                            .padding()
-                    } else {
-                        Text(model.selectedSearchType == .author ? "Results by Author" : "Results by Title")
-                            .font(.callout)
-                            .foregroundStyle(.secondary)
-                            .padding()
-                        
-                        ScrollView {
-                            LazyVGrid(columns: columns) {
-                                ForEach(model.mangasResults, id: \.self) { manga in
-                                    NavigationLink(destination: MangaDetailView(manga: manga)) {
-                                        MangaItemView(manga: manga)
-                                    }
-                                }
-                                
-                                if model.hasMorePages {
-                                    ProgressView()
-                                        .onAppear {
-                                            model.loadMoreMangas()
-                                        }
-                                }
-                            }
-                            .padding(.horizontal)
-                        }
+                        ErrorView(button: ColoredRoundedButton(title: "Retry", action: {
+                            model.loadMoreMangas()
+                        })).padding()
                     }
-                }
-                .navigationTitle("Search Mangas")
-                .toolbar {
-#if os(macOS)
-                    if model.filtersLoaded {
-                        FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes)
-                    }
-#else
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        if model.filtersLoaded {
-                            FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes)
-                        }
-                    }
-#endif
-                }
-                .onAppear {
-                    model.fetchFilters()
-                    updateColumns(isCompact: horizontalSizeClass == .compact)
-                }
-                .onChange(of: geometry.size) {
-                    updateColumns(isCompact: horizontalSizeClass == .compact)
-                }
-                .refreshable {
-                    model.reloadMangas()
                 }
             }
         }
@@ -117,4 +92,9 @@ struct SearchView: View {
     private func updateColumns(isCompact: Bool) {
         columns = Array(repeating: .init(.flexible()), count: isCompact ? 3 : 5)
     }
+}
+
+#Preview {
+    SearchView()
+        .environment(SearchModel())
 }

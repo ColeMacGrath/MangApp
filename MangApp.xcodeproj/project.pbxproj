@@ -33,6 +33,8 @@
 		B343C12B2C68855C00DD9BF0 /* PBXFileSystemSynchronizedBuildFileExceptionSet */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
+				Authors/Models/AuthorsModel.swift,
+				Authors/Views/AuthorsView.swift,
 				Collection/Models/CollectionModel.swift,
 				Collection/Models/CollectionViewType.swift,
 				Collection/Views/MangasCollectonView.swift,
@@ -68,13 +70,18 @@
 				Models/Network/NetworkInteractor.swift,
 				"Preview Content/Preview Assets.xcassets",
 				Search/Models/SearchModel.swift,
+				Search/Models/SearchRequestBody.swift,
+				Search/Models/SearchType.swift,
 				Search/SubViews/FilterMenu.swift,
 				Search/SubViews/SearchBar.swift,
+				Search/SubViews/SearchPicker.swift,
+				Search/SubViews/SubtitleSerachView.swift,
 				Search/Views/SearchView.swift,
 				Utilities/AppConfig.plist,
 				Utilities/AppConfigExample.plist,
 				"Utilities/Assets + Entitlements/Assets.xcassets",
 				Utilities/Extensions.swift,
+				"Utilities/General Views/ErrorView.swift",
 				Utilities/Image/AsyncMangaImageView.swift,
 				Utilities/Image/ImageExtensions.swift,
 				Utilities/JSONS/Authors.json,

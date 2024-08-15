@@ -74,18 +74,16 @@ class NetworkInteractor {
                 return decodedDataForPlainText(data: data, responseType: responseType)
             }
             
-            if JSON.self is [String].Type {
+            if JSON.self is [String].Type || JSON.self is [Author].Type {
                 return self.decodedDataForJSONArray(data: data, responseType: responseType)
             } else {
                 return self.decodedDataForJSONObject(data: data, responseType: responseType)
             }
             
-           
         } catch {
             return nil
         }
     }
-    
     private func decodedDataForPlainText<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
         guard let plainText = String(data: data, encoding: .utf8), responseType == LoginResponse.self else { return nil }
         let userResponse = UserResponse(authToken: plainText)
@@ -99,8 +97,11 @@ class NetworkInteractor {
         decoder.dateDecodingStrategy = .iso8601
         do {
             let serverResponse = try decoder.decode(ServerResponse<JSON>.self, from: data)
-            return NetworkResponse(data: serverResponse.content!, status: .ok, metadata: serverResponse.metadata)
-        } catch { return nil }
+            guard let content = serverResponse.content else { return nil }
+            return NetworkResponse(data: content, status: .ok, metadata: serverResponse.metadata)
+        } catch {
+            print(error)
+            return nil }
     }
     
     private func decodedDataForJSONArray<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {

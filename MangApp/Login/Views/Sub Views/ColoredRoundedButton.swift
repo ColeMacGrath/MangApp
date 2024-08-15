@@ -11,7 +11,7 @@ import SwiftUI
 struct ColoredRoundedButton: View {
     var title: String
     var action: () -> Void
-    var backgroundColor: Color = .pink
+    var backgroundColor: Color = .accentColor
     var foregroundColor: Color = .white
     
     var body: some View {
