@@ -64,6 +64,11 @@ class SearchModel {
     }
     
     private func loadMangas(page: Int, per: Int) {
+        guard !isOnPreview else {
+            mangasResults.setMangaArray()
+            isDataLoaded = true
+            return
+        }
         guard !isLoading else { return }
         isLoading = true
         hasError = false
@@ -93,7 +98,7 @@ class SearchModel {
             }
             currentPage = page
             mangasResults.append(contentsOf: newMangas)
-            totalItems = response?.metadata?.total ?? 0
+            totalItems = response?.metadata?.total ?? .zero
             isLoading = false
             isDataLoaded = true
         }
@@ -168,6 +173,13 @@ class SearchModel {
     }
     
     func fetchFilters() {
+        guard !isOnPreview else {
+            availableDemographics.setDemographicsArray()
+            availableGenres.setGenresArray()
+            availableThemes.setThemesArray()
+            return
+        }
+        
         guard !isDataLoaded,
               let demographicsURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/demographics"),
               let genresURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/genres"),

@@ -18,6 +18,10 @@ class AuthorsModel {
     }
     
     func fetchAuthors() {
+        guard !isOnPreview else {
+            authors.setAuthorsArray()
+            return
+        }
         guard !authorsLoaded else { return }
         Task {
             guard let url = URL.authors else { return }

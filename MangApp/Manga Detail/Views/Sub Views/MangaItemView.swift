@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MangaItemView: View {
     var manga: Manga
-    @Environment(\.isOnPreview) private var isOnPreview: Bool
     @State private var isPressed = false
     
     var body: some View {

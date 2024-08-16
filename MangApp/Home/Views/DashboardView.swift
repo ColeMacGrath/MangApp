@@ -20,7 +20,7 @@ struct DashboardView: View {
                     VStack {
                         MangaHorizontalScrollView(title: "My Collection", mangas: $model.mangaCollection.wrappedValue)
                         MangaHorizontalScrollView(title: "The Best", mangas: $model.bestMangas.wrappedValue)
-                    }.frame(height: horizontalSizeClass == .compact ? geometry.size.height * 1.3 : geometry.size.height * 1.7)
+                    }.frame(height: horizontalSizeClass == .compact ? geometry.size.height * 1.3 : geometry.size.height * 1.6)
                         .navigationTitle("Home")
                         .toolbar {
 #if !os(macOS)
@@ -42,9 +42,7 @@ struct DashboardView: View {
             model.loadCollection()
         }
     }
-    
 }
-
 
 #Preview {
     NavigationStack {

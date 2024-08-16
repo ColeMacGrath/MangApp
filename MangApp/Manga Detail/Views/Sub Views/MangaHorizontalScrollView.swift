@@ -43,5 +43,5 @@ struct MangaHorizontalScrollView: View {
 }
 
 #Preview {
-    MangaHorizontalScrollView(title: "Secton Title", mangas: [].getMangaArray())
+    MangaHorizontalScrollView(title: "Secton Title", mangas: [.defaultManga])
 }

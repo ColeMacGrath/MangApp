@@ -54,6 +54,8 @@ struct MangasCollectonView: View {
 }
 
 #Preview {
-    MangasCollectonView(title: "My Collection")
-        .environment(CollectionModel(collectionType: .best))
+    NavigationStack {
+        MangasCollectonView(title: "My Collection")
+            .environment(CollectionModel(collectionType: .best))
+    }
 }

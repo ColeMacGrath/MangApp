@@ -44,6 +44,10 @@ class CollectionModel {
     }
 
     private func loadMangas(page: Int, per: Int) {
+        guard !isOnPreview else {
+            self.mangaList.setMangaArray()
+            return
+        }
         Task {
             guard let url = URL.mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths) else { return }
             let response = await interactor.perform(request: .get(url: url), responseType: [Manga].self)

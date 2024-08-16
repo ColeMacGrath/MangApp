@@ -52,6 +52,8 @@ struct AuthorsView: View {
     }
 }
 #Preview {
-    AuthorsView()
-        .environment(AuthorsModel())
+    NavigationStack {
+        AuthorsView()
+            .environment(AuthorsModel())
+    }
 }

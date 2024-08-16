@@ -19,6 +19,11 @@ class DashboardModel {
     }
     
     func loadCollection() {
+        guard !isOnPreview else {
+            mangaCollection.setMangaArray()
+            bestMangas = mangaCollection
+            return
+        }
         guard !isDataLoaded else { return }
         Task {
             async let collectionResponse = interactor.mangasArray(collectionType: .mangas)

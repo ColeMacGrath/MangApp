@@ -210,15 +210,15 @@ struct MangaList: Decodable {
     }
 }
 
-extension Array {
-    func getMangaArray() -> [Manga] {
+extension Array where Element == Manga {
+    mutating func setMangaArray() {
         let dateFormatter: DateFormatter = {
             let formatter = DateFormatter()
             formatter.dateFormat = "yyyy-MM-dd'T'HH:mm:ssZ"
             return formatter
         }()
         
-        guard let jsonData = loadJSONFromFile(named: "Mangas") else { return [] }
+        guard let jsonData = loadJSONFromFile(named: "Mangas") else { return }
         
         let decoder = JSONDecoder()
         decoder.dateDecodingStrategy = .formatted(dateFormatter)
@@ -235,56 +235,59 @@ extension Array {
         
         do {
             let mangaList = try decoder.decode(MangaList.self, from: jsonData)
-            return mangaList.mangas
-        } catch {
-            return []
-        }
+            return self = mangaList.mangas
+        } catch { }
     }
-    
-    func getAuthorsArray() -> [Author] {
-        guard let jsonData = loadJSONFromFile(named: "Authors") else { return [] }
+}
+
+extension Array where Element == Author {
+    mutating func setAuthorsArray() {
+        guard let jsonData = loadJSONFromFile(named: "Authors") else { return }
         do {
             let decoder = JSONDecoder()
             let authors = try decoder.decode([Author].self, from: jsonData)
-            return authors
-        } catch {
-            return []
-        }
+            self = authors
+        } catch { }
     }
-    
-    func getDemographicsArray() -> [Demographic] {
-        guard let data = loadJSONFromFile(named: "Demographics") else { return [] }
+}
+
+extension Array where Element == Demographic {
+    mutating func setDemographicsArray() {
+        guard let data = loadJSONFromFile(named: "Demographics") else { return }
         
         do {
             let demographicStrings = try JSONDecoder().decode([String].self, from: data)
             let demographics = demographicStrings.map { Demographic(id: UUID().uuidString, demographic: $0) }
-            
-            return demographics
-        } catch { return [] }
+            self = demographics
+        } catch { return }
     }
-    
-    func getGenresArray() -> [Genre] {
-        guard let data = loadJSONFromFile(named: "Genres") else { return [] }
+}
+
+extension Array where Element == Genre {
+    mutating func setGenresArray() {
+        guard let data = loadJSONFromFile(named: "Genres") else { return }
         
         do {
             let genreStrings = try JSONDecoder().decode([String].self, from: data)
             let genres = genreStrings.map { Genre(id: UUID().uuidString, genre: $0) }
-            
-            return genres
-        } catch { return [] }
+            self = genres
+        } catch { return }
     }
-    
-    func getThemesArray() -> [Theme] {
-        guard let data = loadJSONFromFile(named: "Themes") else { return [] }
+}
+
+extension Array where Element == Theme {
+    mutating func setThemesArray() {
+        guard let data = loadJSONFromFile(named: "Themes") else { return }
         
         do {
             let themeArray = try JSONDecoder().decode([String].self, from: data)
             let themes = themeArray.map { Theme(id: UUID().uuidString, theme: $0) }
-            
-            return themes
-        } catch { return [] }
+            self = themes
+        } catch { return }
     }
-    
+}
+
+extension Array {
     private func loadJSONFromFile(named fileName: String) -> Data? {
         guard let url = Bundle.main.url(forResource: fileName, withExtension: "json") else { return nil }
         do {

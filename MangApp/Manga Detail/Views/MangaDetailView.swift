@@ -8,7 +8,6 @@
 import SwiftUI
 
 struct MangaDetailView: View {
-    @Environment(\.isOnPreview) private var isOnPreview: Bool
     @Environment(\.horizontalSizeClass) private var horizontalSize
     @Environment(\.presentationMode) var presentationMode
     @State private var isDetailViewPresented = false
@@ -20,38 +19,13 @@ struct MangaDetailView: View {
                 VStack {
                     ScoreView(score: manga.score)
                     
-                    if let url = manga.mainPicture?.toURL,
-                       !isOnPreview {
-                        AsyncMangaImageView(geometry: geometry, url: url)
-                    } else {
-#if os(macOS)
-                        Image("manga_cover_image")
-                            .resizable()
-                            .aspectRatio(0.66, contentMode: .fit)
-                            .mask(RoundedRectangle(cornerRadius: 10.0))
-                            .padding()
-#else
-                        Image(.mangaCover)
-                            .resizable()
-                            .aspectRatio(0.66, contentMode: .fit)
-                            .mask(RoundedRectangle(cornerRadius: 10.0))
-                            .padding()
-#endif
-                        
-                    }
+                    AsyncMangaImageView(geometry: geometry, url: manga.mainPicture?.toURL)
                     
                     MangaDetailTitlesView(manga: manga)
-                    Button(action: {
+                    
+                    ColoredRoundedButton(title: "Add to collection") {
                         //TODO
-                    }, label: {
-                        ZStack {
-                            RoundedRectangle(cornerRadius: 10.0)
-                                .foregroundStyle(.purple)
-                            Text("Add to collection")
-                                .bold()
-                                .foregroundStyle(.white)
-                        }.frame(maxHeight: 50.0)
-                    }).padding()
+                    }
                 }
                 
                 if horizontalSize != .compact {
@@ -59,11 +33,13 @@ struct MangaDetailView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .primaryAction) {
-                    Button {
-                        isDetailViewPresented = true
-                    } label: {
-                        Image(systemName: "info.circle.fill")
+                if horizontalSize == .compact {
+                    ToolbarItem(placement: .primaryAction) {
+                        Button {
+                            isDetailViewPresented = true
+                        } label: {
+                            Image(systemName: "info.circle.fill")
+                        }
                     }
                 }
             }
@@ -74,20 +50,8 @@ struct MangaDetailView: View {
     }
 }
 
-
-
 #Preview {
     NavigationStack {
         MangaDetailView(manga: Manga.defaultManga)
     }
 }
-
-
-
-
-
-
-
-
-
-
