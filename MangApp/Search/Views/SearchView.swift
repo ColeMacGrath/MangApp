@@ -10,7 +10,7 @@ import SwiftUI
 struct SearchView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(SearchModel.self) private var model
-    @State private var columns: [GridItem] = []
+    @State private var columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
     
     var body: some View {
         @Bindable var model = model
@@ -66,7 +66,7 @@ struct SearchView: View {
                     }
                     .onAppear {
                         model.fetchFilters()
-                        updateColumns(isCompact: horizontalSizeClass == .compact)
+                        //updateColumns(isCompact: horizontalSizeClass == .compact)
                     }
                     .onChange(of: geometry.size) {
                         updateColumns(isCompact: horizontalSizeClass == .compact)

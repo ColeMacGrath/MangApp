@@ -20,7 +20,7 @@ class AuthorsModel {
     func fetchAuthors() {
         guard !authorsLoaded else { return }
         Task {
-            guard let url = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/authors") else { return }
+            guard let url = URL.authors else { return }
             let request = URLRequest(url: url)
             guard let response = await interactor.perform(request: request, responseType: [Author].self) else { return }
             authors = response.data

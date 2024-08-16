@@ -14,6 +14,8 @@ struct APIConfig {
         case list = "list"
         case mangas = "mangas"
         case bestMangas = "bestMangas"
+        case author = "mangaByAuthor"
+        case authors = "authors"
     }
     
     static var baseURL: URL? {

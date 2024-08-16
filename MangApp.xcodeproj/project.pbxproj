@@ -35,6 +35,7 @@
 			membershipExceptions = (
 				Authors/Models/AuthorsModel.swift,
 				Authors/Views/AuthorsView.swift,
+				"Authors/Views/Sub Views/AuthorProfilePlaceHolder.swift",
 				Collection/Models/CollectionModel.swift,
 				Collection/Models/CollectionViewType.swift,
 				Collection/Views/MangasCollectonView.swift,

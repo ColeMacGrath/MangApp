@@ -48,17 +48,28 @@ extension URL {
     static let login = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.login.rawValue)
     static let mangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.mangas.rawValue)
     static let bestMangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.bestMangas.rawValue)
+    static let authors = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.authors.rawValue)
     
-    static func mangas(page: Int, per: Int, collectionType: CollectionViewType) -> URL? {
-        guard let url = APIConfig.baseURL?
-            .appending(path: APIConfig.APIEndpoints.list.rawValue)
-            .appending(path: collectionType == .mangas ? APIConfig.APIEndpoints.mangas.rawValue : APIConfig.APIEndpoints.bestMangas.rawValue) else { return nil }
+    static func mangas(page: Int, per: Int, collectionType: CollectionViewType, queryPaths: [String]? = nil) -> URL? {
+        guard var url = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue) else { return nil }
+        
+        switch collectionType {
+        case .mangas:
+            url.append(path: APIConfig.APIEndpoints.mangas.rawValue)
+        case .best:
+            url.append(path: APIConfig.APIEndpoints.bestMangas.rawValue)
+        case .author:
+            url.append(path: APIConfig.APIEndpoints.author.rawValue)
+        }
+        
+        queryPaths?.forEach { url.append(path: $0) }
         
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
         components.queryItems = [
             URLQueryItem(name: "page", value: String(page)),
             URLQueryItem(name: "per", value: String(per))
         ]
+        
         return components.url
     }
 }

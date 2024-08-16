@@ -10,4 +10,5 @@ import Foundation
 enum CollectionViewType {
     case mangas
     case best
+    case author
 }

@@ -15,11 +15,13 @@ class CollectionModel {
     private var isLoading: Bool = false
     private var isDataLoaded: Bool = false
     private var collectionType: CollectionViewType
+    private var queryPaths: [String]?
     var interactor: NetworkInteractor
 
-    init(interactor: NetworkInteractor = NetworkInteractor.shared, collectionType: CollectionViewType = .best) {
+    init(interactor: NetworkInteractor = NetworkInteractor.shared, collectionType: CollectionViewType = .best, queryPaths: [String]? = nil) {
         self.interactor = interactor
         self.collectionType = collectionType
+        self.queryPaths = queryPaths
     }
     
     func loadInitialMangas(per: Int = 20) {
@@ -43,7 +45,7 @@ class CollectionModel {
 
     private func loadMangas(page: Int, per: Int) {
         Task {
-            guard let url = URL.mangas(page: page, per: per, collectionType: collectionType) else { return }
+            guard let url = URL.mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths) else { return }
             let response = await interactor.perform(request: .get(url: url), responseType: [Manga].self)
             guard let newMangas = response?.data else {
                 isLoading = false
