@@ -14,12 +14,14 @@ struct LoginHeader: View {
     
     @ViewBuilder
     func welcomeMessage() -> some View {
-        Text("Welcome Back")
-            .bold()
-            .font(.largeTitle)
-        Text("We've missed you tracking mangas")
-            .font(.title2)
-            .foregroundStyle(.secondary)
+        VStack(alignment: .leading) {
+            Text("Hey, There 👋\nFind you favorites mangas here")
+                .bold()
+                .font(.largeTitle)
+            Text("Enter you email adderss and password to login")
+                .font(.title2)
+                .foregroundStyle(.secondary)
+        }.minimumScaleFactor(0.5)
     }
 }
 

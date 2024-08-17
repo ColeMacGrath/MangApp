@@ -82,7 +82,7 @@ class SearchModel {
             ]
             guard let url = urlComponents.url else { return }
             
-            guard let postRequest = URLRequest.post(url: url, body: requestBody) else {
+            guard let postRequest: URLRequest = .request(method: .POST, url: url, body: requestBody) else {
                 hasError = true
                 errorMessage = "Failed to create request."
                 isLoading = false
@@ -181,13 +181,12 @@ class SearchModel {
         }
         
         guard !isDataLoaded,
-              let demographicsURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/demographics"),
-              let genresURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/genres"),
-              let themesURL = URL(string: "https://mymanga-acacademy-5607149ebe3d.herokuapp.com/list/themes") else { return }
-        
-        let demographicsRequest = URLRequest.get(url: demographicsURL)
-        let genresRequest = URLRequest.get(url: genresURL)
-        let themesRequest = URLRequest.get(url: themesURL)
+              let demographicsURL: URL = .demographics,
+              let genresURL: URL = .genres,
+              let themesURL: URL = .themes,
+              let demographicsRequest: URLRequest = .request(method: .GET, url: demographicsURL),
+              let genresRequest: URLRequest = .request(method: .GET, url: genresURL),
+              let themesRequest: URLRequest = .request(method: .GET, url: themesURL) else { return }
         
         Task {
             async let demographicsPerform = await interactor.perform(request: demographicsRequest, responseType: [String].self)
@@ -196,9 +195,14 @@ class SearchModel {
             
             let (demographicsResponse, genresResponse, themesResponse) = await (demographicsPerform, genresPerform, themesPerform)
             
-            availableDemographics = demographicsResponse?.data.map { Demographic(id: UUID().uuidString, demographic: $0) } ?? []
-            availableGenres = genresResponse?.data.map { Genre(id: UUID().uuidString, genre: $0) } ?? []
-            availableThemes = themesResponse?.data.map { Theme(id: UUID().uuidString, theme: $0) } ?? []
+            guard let demographicsData = demographicsResponse?.data,
+            let genresData = genresResponse?.data,
+            let themesData = themesResponse?.data else { return }
+            
+            
+            availableDemographics = demographicsData.map { Demographic(id: UUID().uuidString, demographic: $0) }
+            availableGenres = genresData.map { Genre(id: UUID().uuidString, genre: $0) }
+            availableThemes = themesData.map { Theme(id: UUID().uuidString, theme: $0) }
             
             if !availableDemographics.isEmpty || !availableGenres.isEmpty || !availableThemes.isEmpty {
                 isDataLoaded = true

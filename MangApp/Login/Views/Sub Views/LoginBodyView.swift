@@ -12,13 +12,16 @@ struct LoginBodyView: View {
     @Binding var password: String
     
     var body: some View {
-        TextField("Enter username", text: $email)
-            .modifier(SemiTransparentModifier())
-        SecureField("Enter password", text: $password)
-            .modifier(SemiTransparentModifier())
+        Group {
+            ImageTextField(text: $email, outsideTitle: "Email", image: Image(systemName: "person"), placeholderText: "Enter email")
+            ImageTextField(text: $password, outsideTitle: "Password", image: Image(systemName: "lock"), placeholderText: "Enter password", isSecure: true)
+        }
+        .padding(.horizontal)
     }
 }
+
 
 #Preview {
     LoginBodyView(email: .constant(String()), password: .constant(String()))
 }
+

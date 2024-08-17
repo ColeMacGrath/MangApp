@@ -19,3 +19,8 @@ struct LoginResponse: Codable {
 struct UserResponse: Codable {
     let authToken: String
 }
+
+struct SignUpRequest: Codable {
+    let email: String
+    let password: String
+}

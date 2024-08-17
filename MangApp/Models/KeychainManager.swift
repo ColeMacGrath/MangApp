@@ -10,10 +10,16 @@ import Foundation
 class KeychainManager {
     static let shared = KeychainManager()
     private let identifier = "AppToken"
-    private init() {}
+    private(set) var token: String?
+    
+    private init() {
+        guard ((self.token?.isEmpty) == nil) else { return }
+        guard let token = self.retrieve(identifier: identifier) else { return }
+        self.token = token
+    }
     
     var hasToken: Bool {
-        retrieve(identifier: identifier) != nil
+        self.token != nil
     }
 
     private func save(data: Data, identifier: String) -> Bool {
@@ -42,26 +48,23 @@ class KeychainManager {
         let identifier = identifier ?? self.identifier
         return self.save(data: data, identifier: identifier)
     }
-
-    func retrieve(identifier: String) -> [String: Any]? {
+    
+    func retrieve(identifier: String) -> String? {
         let query = [
             kSecClass as String: kSecClassGenericPassword as String,
             kSecAttrAccount as String: identifier,
             kSecReturnData as String: kCFBooleanTrue!,
             kSecMatchLimit as String: kSecMatchLimitOne] as [String: Any]
         
-        var item: AnyObject?
-        let status = SecItemCopyMatching(query as CFDictionary, &item)
+        var dataTypeRef: AnyObject? = nil
+        let status = SecItemCopyMatching(query as CFDictionary, &dataTypeRef)
         
-        guard status == noErr,
-              let data = item as? Data else { return nil }
+        guard status == errSecSuccess, let data = dataTypeRef as? Data else { return nil }
         
         do {
-            let dictionary = try JSONSerialization.jsonObject(with: data, options: []) as? Dictionary<String, Any>
-            return dictionary
-        } catch {
-            return nil
-        }
+            guard let result = try JSONSerialization.jsonObject(with: data, options: []) as? Dictionary<String, String> else { return nil }
+            return result[identifier]
+        } catch { return nil }
     }
     
     func deleteToken(identifier: String? = nil) -> Bool {

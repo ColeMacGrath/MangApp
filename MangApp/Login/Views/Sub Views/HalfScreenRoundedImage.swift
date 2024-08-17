@@ -13,12 +13,16 @@ struct HalfScreenRoundedImage: View {
     var height: CGFloat
     
     var body: some View {
-        image
-            .resizable()
-            .aspectRatio(contentMode: .fill)
-            .frame(width: width / 2, height: height)
-            .cornerRadius(10.0)
-            .padding(.horizontal)
+        VStack {
+            Spacer()
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .frame(width: width / 2, height: height)
+                .cornerRadius(10.0)
+                .padding(.horizontal)
+        }
+        
     }
 }
 

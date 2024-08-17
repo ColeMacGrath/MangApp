@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct AboutView: View {
-    @Environment(\.presentationMode) var presentationMode
+    @Environment(\.presentationMode) private var presentationMode
     @Environment(LoginModel.self) private var model
     var body: some View {
         @Bindable var model = model

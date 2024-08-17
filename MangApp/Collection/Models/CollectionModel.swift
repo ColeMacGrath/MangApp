@@ -49,15 +49,16 @@ class CollectionModel {
             return
         }
         Task {
-            guard let url = URL.mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths) else { return }
-            let response = await interactor.perform(request: .get(url: url), responseType: [Manga].self)
-            guard let newMangas = response?.data else {
+            guard let url = URL.mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths),
+                  let request: URLRequest = .request(method: .GET, url: url),
+                  let response = await interactor.perform(request: request, responseType: [Manga].self),
+                  let mangas  = response.data else {
                 isLoading = false
                 return
             }
             self.currentPage = page
-            self.mangaList.append(contentsOf: newMangas)
-            self.totalItems = response?.metadata?.total ?? 0
+            self.mangaList.append(contentsOf: mangas)
+            self.totalItems = response.metadata?.total ?? 0
             isLoading = false
         }
     }

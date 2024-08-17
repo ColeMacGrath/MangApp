@@ -7,55 +7,39 @@
 
 import Foundation
 
+
+
 extension URLRequest {
-    static func createPostRequest(url: URL, body: Codable) -> URLRequest? {
+    static func request(method: HTTPMethod, url: URL, body: Codable? = nil, authorization: Bool = false, authenticated: Bool = false, appAuthenticated: Bool = false) -> URLRequest? {
         var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        do {
-            request.httpBody = try JSONEncoder().encode(body)
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-            return request
-        } catch {
-            return nil
+        request.httpMethod = method.rawValue
+        if authenticated {
+            guard let token = KeychainManager.shared.token else { return nil }
+            request.addValue("Bearer \(token)", forHTTPHeaderField: "Authorization")
         }
-    }
-    
-    static func post(url: URL, body: Codable) -> URLRequest? {
-        var request = URLRequest(url: url)
-        request.httpMethod = "POST"
-        do {
-            request.httpBody = try JSONEncoder().encode(body)
-            request.setValue("application/json", forHTTPHeaderField: "Accept")
-            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        if appAuthenticated {
+            request.setValue(getAppToken(), forHTTPHeaderField: "App-Token")
+        }
+        if method == .POST {
+            guard let body else { return nil }
+            request = setPostRequest(request: request, body: body)
             
-            if url == .login,
-               let loginRequest = self.getLoginRequest(request: request, body:  body) {
-                request = loginRequest
-            }
-            return request
-        } catch {
-            return nil
         }
+        if authorization {
+            guard let body,
+                  let base64String = getLoginRequest(body: body) else { return nil}
+            request.setValue("Basic \(base64String)", forHTTPHeaderField: "Authorization")
+        }
+        
+        return request
     }
     
-    static func get(url: URL, isAuthenticated: Bool = false) -> URLRequest {
-        var request = URLRequest(url: url)
-        request.httpMethod = "GET"
-        request.setValue("application/json", forHTTPHeaderField: "Accept")
-        
-        /*if isAuthenticated {
-         guard let token = KeychainHelper.standard.read() else {
-         throw URLRequestError.missingToken
-         }
-         
-         guard let strToken = String(data: token, encoding: .utf8) else {
-         throw URLRequestError.tokenErrorFormat
-         }
-         
-         request.addValue("Bearer \(strToken)", forHTTPHeaderField: "Authorization")
-         }*/
-        
+    static fileprivate func setPostRequest(request: URLRequest, body: Codable) -> URLRequest {
+        var request = request
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        do {
+            request.httpBody = try JSONEncoder().encode(body)
+        } catch {}
         return request
     }
     
@@ -67,18 +51,12 @@ extension URLRequest {
         return appToken
     }
     
-    static fileprivate func getLoginRequest(request: URLRequest, body: Codable) -> URLRequest? {
-        guard let appToken = self.getAppToken(),
-              let loginBody = body as? LoginRequest else { return nil }
-        var request = request
+    static fileprivate func getLoginRequest(body: Codable) -> String? {
+        guard let loginBody = body as? LoginRequest else { return nil }
         let username = loginBody.email
         let password = loginBody.password
         let loginString = "\(username):\(password)"
-        guard let loginData = loginString.data(using: .utf8) else { return nil }
-        let base64LoginString = loginData.base64EncodedString()
-        request.setValue("Basic \(base64LoginString)", forHTTPHeaderField: "Authorization")
-        request.setValue(appToken, forHTTPHeaderField: "App-Token")
-        return request
+        return loginString.data(using: .utf8)?.base64EncodedString()
     }
 }
 

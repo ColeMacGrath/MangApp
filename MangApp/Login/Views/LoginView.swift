@@ -18,49 +18,59 @@ struct LoginView: View {
                 .edgesIgnoringSafeArea(.all)
 #endif
             VStack {
-                if horizontalSizeClass == .compact,
-                   geometry.size.width < geometry.size.height {
+                if horizontalSizeClass == .compact {
                     LoginHeader()
-                    Spacer()
-                    LoginBodyView(email: $model.username, password: $model.password)
+                        .padding(.top)
                     
-                    RoundedActionButton(title: "Sign In", backgroundColor: .purple) {
+                    LoginBodyView(email: $model.username, password: $model.password)
+                        .padding(.top)
+                    
+                    Spacer()
+                    RoundedActionButton(title: "Sign In", backgroundColor: .accentColor) {
                         model.login()
                     }
                     
                     RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
-                        //
+                        model.showSignUpView = true
                     }
 #if !os(macOS)
                     .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
                         SelectableItemsView()
                     }
 #endif
-                    Spacer()
                     
+                    .sheet(isPresented: $model.showSignUpView) {
+                        SignUpView()
+                    }
                 } else {
-                    Spacer()
                     HStack {
                         HalfScreenRoundedImage(image: Image(.login), width: geometry.size.width, height: geometry.size.height)
                         
-                        VStack {
-                            Spacer()
+                        VStack(alignment: .leading) {
                             LoginHeader()
+                                .padding(.top)
+                            Spacer()
                             LoginBodyView(email: $model.username, password: $model.password)
                             
-                            RoundedActionButton(title: "Sign In", backgroundColor: .purple) {
+                            RoundedActionButton(title: "Sign In", backgroundColor: .accentColor) {
                                 model.login()
-                            }
+                            }.padding(.top)
                             
                             RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
+                                model.showSignUpView = true
                             }
-#if !os(macOS)
-                            .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
-                                SelectableItemsView()
-                            }
-#endif
+                            
                             Spacer()
                         }
+#if !os(macOS)
+                        .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
+                            SelectableItemsView()
+                        }
+#endif
+                        .sheet(isPresented: $model.showSignUpView) {
+                            SignUpView()
+                        }
+                        
                     }
                 }
             }

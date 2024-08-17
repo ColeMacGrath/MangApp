@@ -22,13 +22,12 @@ class AuthorsModel {
             authors.setAuthorsArray()
             return
         }
-        guard !authorsLoaded else { return }
+        
         Task {
             guard let url = URL.authors else { return }
             let request = URLRequest(url: url)
-            guard let response = await interactor.perform(request: request, responseType: [Author].self) else { return }
-            authors = response.data
-            authorsLoaded = true
+            guard let response = await interactor.perform(request: request, responseType: [Author].self)?.data else { return }
+            authors = response
         }
     }
 }

@@ -24,13 +24,14 @@ struct Metadata: Codable {
 }
 
 struct NetworkResponse<JSON: Codable> {
-    let data: JSON
+    let data: JSON?
     let status: URLRequestResult
     let metadata: Metadata?
 }
 
 enum URLRequestResult: Int {
     case ok = 200
+    case created = 201
     case badRequest = 400
     case appUnavailable = 999
 }
@@ -46,11 +47,12 @@ class NetworkInteractor {
     func login(username: String, password: String) async -> URLRequestResult {
         guard let url: URL = .login else { return .badRequest }
         let request = LoginRequest(email: username, password: password)
-        guard let postRequest: URLRequest = .post(url: url, body: request) else { return .badRequest }
+        guard let postRequest: URLRequest = .request(method: .POST, url: url, body: request, authorization: true, appAuthenticated: true) else { return .badRequest }
         let response = await perform(request: postRequest, responseType: LoginResponse.self)
         guard let response else { return .appUnavailable }
         
-        if KeychainManager.shared.save(token: response.data.user.authToken) {
+        if let token = response.data?.user.authToken,
+            KeychainManager.shared.save(token: token) {
             return response.status
         }
         return .appUnavailable
@@ -58,18 +60,33 @@ class NetworkInteractor {
     
     func mangasArray(collectionType: CollectionViewType) async -> (status: URLRequestResult, mangas: [Manga]?) {
         let url: URL? = collectionType == .best ? .bestMangas : .mangas
-        guard let url else { return (.badRequest, nil) }
-        let getRequest: URLRequest = .get(url: url)
+        guard let url,
+              let getRequest: URLRequest = .request(method: .GET, url: url) else { return (.badRequest, nil) }
+        
         let response = await perform(request: getRequest, responseType: [Manga].self)
         return (response?.status ?? .appUnavailable, response?.data)
     }
     
-    func perform<JSON: Codable>(request: URLRequest, statusCode: Int = 200, responseType: JSON.Type) async -> NetworkResponse<JSON>? {
+    func signUp(email: String, password: String) async -> URLRequestResult {
+        guard let url: URL = .users else { return .badRequest }
+        let bodyRequest = SignUpRequest(email: email, password: password)
+        guard let postRequest: URLRequest = .request(method: .POST, url: url, body: bodyRequest, appAuthenticated: true) else { return .badRequest}
+        guard let response = await perform(request: postRequest, responseType: SignUpRequest.self)?.status else { return .appUnavailable }
+        return response
+    }
+    
+    func perform<JSON: Codable>(request: URLRequest, responseType: JSON.Type) async -> NetworkResponse<JSON>? {
         do {
             let (data, response) = try await URLSession.shared.data(for: request)
-            guard let httpResponse = response as? HTTPURLResponse,
-                  httpResponse.statusCode == statusCode else { return nil }
+            guard let httpResponse = response as? HTTPURLResponse else { return nil }
+            var defaultResponse: URLRequestResult = .appUnavailable
+            if (200...299).contains(httpResponse.statusCode) {
+                defaultResponse = .ok
+            }
             
+            guard !data.isEmpty else {
+                return NetworkResponse(data: nil, status: URLRequestResult(rawValue: httpResponse.statusCode) ?? defaultResponse, metadata: nil)
+            }
             guard let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"), contentType.contains("application/json") else {
                 return decodedDataForPlainText(data: data, responseType: responseType)
             }
@@ -84,6 +101,7 @@ class NetworkInteractor {
             return nil
         }
     }
+    
     private func decodedDataForPlainText<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
         guard let plainText = String(data: data, encoding: .utf8), responseType == LoginResponse.self else { return nil }
         let userResponse = UserResponse(authToken: plainText)

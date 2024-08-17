@@ -21,5 +21,5 @@ struct RoundedActionButton: View {
 }
 
 #Preview {
-    RoundedActionButton(title: "Button Text", backgroundColor: .purple, action: {})
+    RoundedActionButton(title: "Button Text", backgroundColor: .accent, action: {})
 }
