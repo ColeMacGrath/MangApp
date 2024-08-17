@@ -9,9 +9,11 @@ import SwiftUI
 
 struct ImageTextField: View {
     @Binding var text: String
+    @Binding var isValid: Bool
     var outsideTitle: String?
     var image: Image?
     var placeholderText: String?
+    var invalidMessage: String?
     var isSecure = false
     
     var body: some View {
@@ -35,12 +37,17 @@ struct ImageTextField: View {
                 RoundedRectangle(cornerRadius: 5)
                     .stroke(lineWidth: 0.5)
             ).foregroundColor(.accentColor)
+            if !isValid,
+                let invalidMessage {
+                Text(invalidMessage)
+                    .foregroundStyle(.red)
+            }
         }
        
     }
 }
 
 #Preview {
-    ImageTextField(text: .constant(""), outsideTitle: "Outside Title", image: Image(systemName: "person"))
+    ImageTextField(text: .constant(""), isValid: .constant(false), outsideTitle: "Outside Title", image: Image(systemName: "person"), invalidMessage: "Invalid Message")
         .padding()
 }

@@ -10,11 +10,13 @@ import SwiftUI
 struct LoginBodyView: View {
     @Binding var email: String
     @Binding var password: String
+    @Binding var isValidMail: Bool
+    @Binding var isValidPassword: Bool
     
     var body: some View {
         Group {
-            ImageTextField(text: $email, outsideTitle: "Email", image: Image(systemName: "person"), placeholderText: "Enter email")
-            ImageTextField(text: $password, outsideTitle: "Password", image: Image(systemName: "lock"), placeholderText: "Enter password", isSecure: true)
+            ImageTextField(text: $email, isValid: $isValidMail, outsideTitle: "Email", image: Image(systemName: "person"), placeholderText: "Enter email", invalidMessage: "Invalid email")
+            ImageTextField(text: $password, isValid: $isValidPassword, outsideTitle: "Password", image: Image(systemName: "lock"), placeholderText: "Enter password", invalidMessage: "Password must be at least 8 characters", isSecure: true)
         }
         .padding(.horizontal)
     }
@@ -22,6 +24,6 @@ struct LoginBodyView: View {
 
 
 #Preview {
-    LoginBodyView(email: .constant(String()), password: .constant(String()))
+    LoginBodyView(email: .constant(""), password: .constant(""), isValidMail: .constant(false), isValidPassword: .constant(false))
 }
 

@@ -22,13 +22,13 @@ struct LoginView: View {
                     LoginHeader()
                         .padding(.top)
                     
-                    LoginBodyView(email: $model.username, password: $model.password)
+                    LoginBodyView(email: $model.email, password: $model.password, isValidMail: $model.isValidMail, isValidPassword: $model.isValidPassword)
                         .padding(.top)
                     
                     Spacer()
                     RoundedActionButton(title: "Sign In", backgroundColor: .accentColor) {
                         model.login()
-                    }
+                    }.disabled(model.isLoginButtonDisabled)
                     
                     RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
                         model.showSignUpView = true
@@ -50,11 +50,13 @@ struct LoginView: View {
                             LoginHeader()
                                 .padding(.top)
                             Spacer()
-                            LoginBodyView(email: $model.username, password: $model.password)
+                            LoginBodyView(email: $model.email, password: $model.password, isValidMail: $model.isValidMail, isValidPassword: $model.isValidPassword)
                             
                             RoundedActionButton(title: "Sign In", backgroundColor: .accentColor) {
                                 model.login()
-                            }.padding(.top)
+                            }
+                            .disabled(model.isLoginButtonDisabled)
+                            .padding(.top)
                             
                             RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
                                 model.showSignUpView = true
