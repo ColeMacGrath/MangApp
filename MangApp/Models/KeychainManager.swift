@@ -37,6 +37,7 @@ class KeychainManager {
     func save(token: String) -> Bool {
         do {
             let data = try JSONSerialization.data(withJSONObject: [identifier: token], options: [])
+            self.token = token
             return save(data: data, identifier: identifier)
         } catch {
             return false

@@ -21,11 +21,13 @@ class OwnMangaModel {
         self.interactor = interactor
     }
     
+    @MainActor
     func loadOwn(manga: Manga) {
         guard let url: URL = .ownManga?.appending(path: String(manga.id)),
               let request: URLRequest = .request(method: .GET, url: url, authenticated: true) else { return }
         isLoaded = false
         selectedVolumes = []
+        selectedReadingVolume = nil
         
         Task {
             guard let response = await interactor.perform(request: request, responseType: OwnManga.self)?.data else {

@@ -10,30 +10,26 @@ import SwiftUI
 struct MangasCollectonView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(CollectionModel.self) private var model
-    @State private var columns: [GridItem] = []
+    @State private var columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
     var title: String
     
     var body: some View {
         @Bindable var model = model
-        
         GeometryReader { geometry in
             ScrollView {
                 LazyVGrid(columns: columns) {
-                    ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList, id: \.self) { manga in
+                    ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList) { manga in
                         NavigationLink(destination: MangaDetailView(manga: manga)
                             .environment(self.model)) {
                                 MangaItemView(manga: manga)
-                            }
-                    }
-                    
-                    if model.hasMorePages {
-                        ProgressView()
-                            .onAppear {
-                                model.loadMoreMangas()
+                                    .onAppear {
+                                        if manga == model.mangaList.last {
+                                            model.loadMoreMangas()
+                                        }
+                                    }
                             }
                     }
                 }
-                .padding(.horizontal)
             }
             .navigationTitle(title)
             .onAppear {

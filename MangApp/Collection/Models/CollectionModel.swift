@@ -18,7 +18,7 @@ class CollectionModel {
     var mangaList: [Manga] = []
     var ownMangas: [OwnManga] = []
     var interactor: NetworkInteractor
-
+    
     init(interactor: NetworkInteractor = NetworkInteractor.shared, collectionType: CollectionViewType = .best, queryPaths: [String]? = nil) {
         self.interactor = interactor
         self.collectionType = collectionType
@@ -26,13 +26,16 @@ class CollectionModel {
     }
     
     func loadInitialMangas(per: Int = 20) {
+        if collectionType == .collection {
+            isDataLoaded = false
+        }
         guard !isDataLoaded else { return }
         currentPage = 1
         mangaList.removeAll()
         loadMangas(page: currentPage, per: per)
         isDataLoaded = true
     }
-
+    
     func loadMoreMangas(per: Int = 20) {
         guard !isLoading else { return }
         isLoading = true
@@ -43,15 +46,15 @@ class CollectionModel {
         isDataLoaded = false
         loadInitialMangas(per: per)
     }
-
+    
     private func loadMangas(page: Int, per: Int) {
         guard !isOnPreview else {
             self.mangaList.setMangaArray()
             return
         }
-        
+        let collection = collectionType == .collection
         Task {
-            guard let url: URL = .mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths),
+            guard let url: URL = .mangas(page: collection ? nil : page, per: collection ? nil : per, collectionType: collectionType, queryPaths: queryPaths),
                   let request: URLRequest = .request(method: .GET, url: url, authenticated: collectionType == .collection) else {
                 isLoading = false
                 return
@@ -63,14 +66,18 @@ class CollectionModel {
                 ownMangas = response.data ?? []
             } else if  let response = await interactor.perform(request: request, responseType: [Manga].self) {
                 self.totalItems = response.metadata?.total ?? 0
-                mangaList = response.data ?? []
+                mangaList.append(contentsOf: response.data ?? [])
             }
             
             self.currentPage = page
             isLoading = false
         }
     }
-
+    
+    func remove(manga: Manga) {
+        ownMangas.removeAll(where: { $0.manga == manga })
+    }
+    
     var hasMorePages: Bool {
         return mangaList.count < totalItems
     }

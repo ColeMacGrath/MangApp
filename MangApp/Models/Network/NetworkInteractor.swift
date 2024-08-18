@@ -60,6 +60,7 @@ enum URLRequestResult: Int {
     case ok = 200
     case created = 201
     case badRequest = 400
+    case unauthorized = 401
     case appUnavailable = 999
 }
 
@@ -107,12 +108,17 @@ class NetworkInteractor {
             let (data, response) = try await URLSession.shared.data(for: request)
             guard let httpResponse = response as? HTTPURLResponse else { return nil }
             var defaultResponse: URLRequestResult = .appUnavailable
-            if (200...299).contains(httpResponse.statusCode) {
+            let result = URLRequestResult(rawValue: httpResponse.statusCode) ?? defaultResponse
+            
+            if result == .unauthorized {
+                _ = KeychainManager.shared.deleteToken()
+                isLoggedIn = false
+            } else if (200...299).contains(httpResponse.statusCode) {
                 defaultResponse = .ok
             }
             
             guard !data.isEmpty else {
-                return NetworkResponse(data: nil, status: URLRequestResult(rawValue: httpResponse.statusCode) ?? defaultResponse, metadata: nil)
+                return NetworkResponse(data: nil, status: result, metadata: nil)
             }
             guard let contentType = httpResponse.value(forHTTPHeaderField: "Content-Type"), contentType.contains("application/json") else {
                 return decodedDataForPlainText(data: data, responseType: responseType)

@@ -12,22 +12,31 @@ struct ColoredRoundedButton: View {
     var title: String
     var backgroundColor: Color = .accentColor
     var foregroundColor: Color = .white
+    var asLoader: Bool = false
     var action: () -> Void
     
     var body: some View {
         Button(action: action) {
-            Text(title)
-                .foregroundColor(foregroundColor)
-                .padding()
-                .frame(maxWidth: .infinity)
-                .background(backgroundColor)
-                .cornerRadius(10)
-                .padding([.horizontal, .top])
-        }
+            VStack {
+                HStack {
+                    if asLoader {
+                        ProgressView()
+                            .padding(.horizontal, 4)
+                    }
+                    Text(title)
+                }
+            }
+            .padding()
+            .tint(foregroundColor)
+            .frame(maxWidth: .infinity)
+            .background(backgroundColor)
+            .cornerRadius(10)
+            .padding([.horizontal, .top])
+        }.disabled(asLoader)
     }
 }
 
 
 #Preview {
-    ColoredRoundedButton(title: "Button", action: {})
+    ColoredRoundedButton(title: "Loading...", asLoader: true, action: {})
 }

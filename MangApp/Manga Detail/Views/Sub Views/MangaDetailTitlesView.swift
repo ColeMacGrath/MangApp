@@ -8,32 +8,33 @@
 import SwiftUI
 
 struct MangaDetailTitlesView: View {
+    @Environment(OwnMangaModel.self) var model
     var manga: Manga
-    @State var isLoaded: Bool
-    @State var isCollectionCompleted: Bool
     
     var body: some View {
+        @Bindable var model = model
         HStack {
             Text(manga.title)
                 
-            if isLoaded,
-               isCollectionCompleted {
+            if model.isLoaded,
+               model.ownManga?.completeCollection ?? false {
                 Text(" ✅")
             }
         }
         .bold()
         .font(.title)
+        .padding(.horizontal)
         
         Text(manga.titleJapanese ?? "")
             .foregroundStyle(.secondary)
             .font(.title2)
-            .padding(.bottom)
+            .padding([.bottom, .horizontal])
     }
 }
 
 #Preview {
     NavigationStack {
-        MangaDetailTitlesView(manga: .defaultManga, isLoaded: true, isCollectionCompleted: true)
+        MangaDetailTitlesView(manga: .defaultManga)
     }
 }
 

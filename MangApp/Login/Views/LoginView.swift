@@ -53,9 +53,10 @@ struct LoginView: View {
                             LoginBodyView(email: $model.email, password: $model.password, isValidMail: $model.isValidMail, isValidPassword: $model.isValidPassword)
                             
                             RoundedActionButton(title: "Sign In", backgroundColor: .accentColor) {
-                                model.login()
+                                if !model.isLoginButtonDisabled {
+                                    model.login()
+                                }
                             }
-                            .disabled(model.isLoginButtonDisabled)
                             .padding(.top)
                             
                             RoundedActionButton(title: "Sign up", backgroundColor: .pink) {

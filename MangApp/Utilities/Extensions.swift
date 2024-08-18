@@ -59,7 +59,7 @@ extension URL {
     static let users = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.users.rawValue)
     static let ownManga = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.collection.rawValue).appending(path: APIConfig.APIEndpoints.manga.rawValue)
     
-    static func mangas(page: Int, per: Int, collectionType: CollectionViewType, queryPaths: [String]? = nil) -> URL? {
+    static func mangas(page: Int? = nil, per: Int? = nil, collectionType: CollectionViewType, queryPaths: [String]? = nil) -> URL? {
         guard var url = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue) else { return nil }
         
         switch collectionType {
@@ -76,6 +76,9 @@ extension URL {
         }
         
         queryPaths?.forEach { url.append(path: $0) }
+        
+        guard let page,
+              let per else { return url }
         
         guard var components = URLComponents(url: url, resolvingAgainstBaseURL: false) else { return nil }
         components.queryItems = [

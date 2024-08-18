@@ -78,7 +78,6 @@ struct SearchView: View {
                     if model.isLoading,
                        model.mangasResults.isEmpty {
                         ProgressView("Loading...")
-                            .padding()
                     } else if model.hasError {
                         ErrorView(button: ColoredRoundedButton(title: "Retry", action: {
                             model.loadMoreMangas()
