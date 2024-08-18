@@ -43,7 +43,6 @@ struct MangaDetailView: View {
                         ColoredRoundedButton(title: "Add to collection") {
                             if let volumes = manga.volumes,
                                volumes > 0 {
-                                print(volumes)
                                 isEditPresented = true
                             } else {
                                 Task {

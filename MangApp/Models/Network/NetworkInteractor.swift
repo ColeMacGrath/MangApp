@@ -27,7 +27,6 @@ struct ServerResponse<Content: Codable>: Codable {
         self.metadata = try container.decodeIfPresent(Metadata.self, forKey: .metadata)
         
         do {
-            // Try to decode from items or data, or fallback to decoding directly
             if let items = try container.decodeIfPresent(Content.self, forKey: .items) {
                 self.items = items
                 self.data = nil
@@ -39,7 +38,6 @@ struct ServerResponse<Content: Codable>: Codable {
                 self.data = try Content(from: decoder)
             }
         } catch {
-            print("Decoding error: \(error)")
             self.items = nil
             self.data = nil
         }
@@ -120,7 +118,9 @@ class NetworkInteractor {
                 return decodedDataForPlainText(data: data, responseType: responseType)
             }
             
-            if JSON.self is [String].Type || JSON.self is [Author].Type {
+            if JSON.self is [OwnManga].Type {
+                return decodedDataForJSONArray(data: data, responseType: responseType)
+            } else if JSON.self is [String].Type || JSON.self is [Author].Type {
                 return self.decodedDataForJSONArray(data: data, responseType: responseType)
             } else {
                 return self.decodedDataForJSONObject(data: data, responseType: responseType)

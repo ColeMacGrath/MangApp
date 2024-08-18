@@ -19,10 +19,11 @@ struct MangasCollectonView: View {
         GeometryReader { geometry in
             ScrollView {
                 LazyVGrid(columns: columns) {
-                    ForEach(model.mangaList, id: \.self) { manga in
-                        NavigationLink(destination: MangaDetailView(manga: manga)) {
-                            MangaItemView(manga: manga)
-                        }
+                    ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList, id: \.self) { manga in
+                        NavigationLink(destination: MangaDetailView(manga: manga)
+                            .environment(self.model)) {
+                                MangaItemView(manga: manga)
+                            }
                     }
                     
                     if model.hasMorePages {

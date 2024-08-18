@@ -13,9 +13,10 @@ class CollectionModel {
     private var totalItems: Int = 0
     private var isLoading: Bool = false
     private var isDataLoaded: Bool = false
-    private var collectionType: CollectionViewType
     private var queryPaths: [String]?
+    var collectionType: CollectionViewType
     var mangaList: [Manga] = []
+    var ownMangas: [OwnManga] = []
     var interactor: NetworkInteractor
 
     init(interactor: NetworkInteractor = NetworkInteractor.shared, collectionType: CollectionViewType = .best, queryPaths: [String]? = nil) {
@@ -51,15 +52,21 @@ class CollectionModel {
         
         Task {
             guard let url: URL = .mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths),
-                  let request: URLRequest = .request(method: .GET, url: url, authenticated: collectionType == .collection),
-                  let response = await interactor.perform(request: request, responseType: [Manga].self),
-                  let mangas  = response.data else {
+                  let request: URLRequest = .request(method: .GET, url: url, authenticated: collectionType == .collection) else {
                 isLoading = false
                 return
             }
+            
+            if collectionType == .collection,
+               let response = await interactor.perform(request: request, responseType: [OwnManga].self) {
+                self.totalItems = response.metadata?.total ?? 0
+                ownMangas = response.data ?? []
+            } else if  let response = await interactor.perform(request: request, responseType: [Manga].self) {
+                self.totalItems = response.metadata?.total ?? 0
+                mangaList = response.data ?? []
+            }
+            
             self.currentPage = page
-            self.mangaList.append(contentsOf: mangas)
-            self.totalItems = response.metadata?.total ?? 0
             isLoading = false
         }
     }

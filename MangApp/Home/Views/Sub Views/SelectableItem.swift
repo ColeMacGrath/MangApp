@@ -32,7 +32,7 @@ enum SelectableItem: CaseIterable, Identifiable {
             DashboardView()
         case .collection:
             MangasCollectonView(title: "My Collection")
-                .environment(CollectionModel(collectionType: .mangas))
+                .environment(CollectionModel(collectionType: .collection))
         case .best:
             MangasCollectonView(title: "The Best")
                 .environment(CollectionModel(collectionType: .best))
