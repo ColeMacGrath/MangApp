@@ -17,7 +17,7 @@ struct SelectedVolumesView: View {
                     model.append(volume: volume)
                 } label: {
                     Circle()
-                        .fill(((model.selectedVolumes!.contains(volume))) ? Color.accentColor : Color.gray)
+                        .fill(model.selectedVolumes?.first(where: { $0 == volume }) != nil ? Color.accentColor : Color.gray)
                         .overlay(
                             Text(String(volume))
                                 .foregroundColor(.white)

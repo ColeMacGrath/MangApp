@@ -33,7 +33,11 @@ struct MangaDetailView: View {
                     
                     if model.ownManga != nil {
                         ColoredRoundedButton(title: "Remove from collection") {
-                            
+                            Task {
+                                if await model.delete(manga: manga) {
+                                    presentationMode.wrappedValue.dismiss()
+                                }
+                            }
                         }.padding(.bottom)
                     } else if model.isLoaded {
                         ColoredRoundedButton(title: "Add to collection") {
@@ -42,7 +46,9 @@ struct MangaDetailView: View {
                                 print(volumes)
                                 isEditPresented = true
                             } else {
-                                _ = model.save(manga: manga)
+                                Task {
+                                    _ = await model.save(manga: manga)
+                                }
                             }
                             
                         }.padding(.bottom)

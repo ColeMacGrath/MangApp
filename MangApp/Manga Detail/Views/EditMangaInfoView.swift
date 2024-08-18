@@ -31,9 +31,12 @@ struct EditMangaInfoView: View {
             }
             
             ColoredRoundedButton(title: "Save") {
-                if let manga = model.manga,
-                   model.save(manga: manga) {
-                    presentationMode.wrappedValue.dismiss()
+                if let manga = model.manga {
+                    Task {
+                        if await model.save(manga: manga) {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
                 }
             }
             

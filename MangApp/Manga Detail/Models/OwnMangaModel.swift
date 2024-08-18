@@ -27,7 +27,6 @@ class OwnMangaModel {
         isLoaded = false
         selectedVolumes = []
         
-        
         Task {
             guard let response = await interactor.perform(request: request, responseType: OwnManga.self)?.data else {
                 self.manga = manga
@@ -40,23 +39,33 @@ class OwnMangaModel {
             self.manga = manga
             selectedVolumes = ownManga?.volumesOwned
             selectedReadingVolume = ownManga?.readingVolume
-            
             isLoaded = true
         }
     }
     
-    func save(manga: Manga) -> Bool {
+    func save(manga: Manga) async -> Bool {
         guard let url: URL = .ownManga,
               let body = createRequestBody(manga: manga),
               let request: URLRequest = .request(method: .POST, url: url, body: body, authenticated: true) else { return false }
-        
-        Task {
-            guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .created else { return false }
-            let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
-            ownManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
-            return true
-        }
+        guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .created else { return false }
+        let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
+        reset()
+        ownManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
         return true
+    }
+    
+    func delete(manga: Manga) async -> Bool {
+        guard let url: URL = .ownManga?.appending(path: String(manga.id))   ,
+              let request: URLRequest = .request(method: .DELETE, url: url, authenticated: true) else { return false }
+        guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .ok else { return false }
+        reset()
+        return true
+    }
+    
+    private func reset() {
+        self.selectedVolumes = nil
+        self.selectedReadingVolume = nil
+        self.ownManga = nil
     }
     
     private func createRequestBody(manga: Manga) -> EditMangaRequestBody? {
