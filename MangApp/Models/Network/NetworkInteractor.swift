@@ -9,11 +9,40 @@ import Foundation
 
 struct ServerResponse<Content: Codable>: Codable {
     let metadata: Metadata?
-    let items: Content?
+    var items: Content?
     let data: Content?
     
     var content: Content? {
         return items ?? data
+    }
+    
+    enum CodingKeys: String, CodingKey {
+        case metadata
+        case items
+        case data
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        self.metadata = try container.decodeIfPresent(Metadata.self, forKey: .metadata)
+        
+        do {
+            // Try to decode from items or data, or fallback to decoding directly
+            if let items = try container.decodeIfPresent(Content.self, forKey: .items) {
+                self.items = items
+                self.data = nil
+            } else if let data = try container.decodeIfPresent(Content.self, forKey: .data) {
+                self.items = nil
+                self.data = data
+            } else {
+                self.items = nil
+                self.data = try Content(from: decoder)
+            }
+        } catch {
+            print("Decoding error: \(error)")
+            self.items = nil
+            self.data = nil
+        }
     }
 }
 
@@ -52,7 +81,7 @@ class NetworkInteractor {
         guard let response else { return .appUnavailable }
         
         if let token = response.data?.user.authToken,
-            KeychainManager.shared.save(token: token) {
+           KeychainManager.shared.save(token: token) {
             return response.status
         }
         return .appUnavailable
@@ -97,9 +126,7 @@ class NetworkInteractor {
                 return self.decodedDataForJSONObject(data: data, responseType: responseType)
             }
             
-        } catch {
-            return nil
-        }
+        } catch { return nil }
     }
     
     private func decodedDataForPlainText<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
@@ -117,9 +144,7 @@ class NetworkInteractor {
             let serverResponse = try decoder.decode(ServerResponse<JSON>.self, from: data)
             guard let content = serverResponse.content else { return nil }
             return NetworkResponse(data: content, status: .ok, metadata: serverResponse.metadata)
-        } catch {
-            print(error)
-            return nil }
+        } catch { return nil }
     }
     
     private func decodedDataForJSONArray<JSON: Codable>(data: Data, responseType: JSON.Type) -> NetworkResponse<JSON>? {
@@ -129,9 +154,6 @@ class NetworkInteractor {
         do {
             let decodedArray = try decoder.decode(JSON.self, from: data)
             return NetworkResponse(data: decodedArray, status: .ok, metadata: nil)
-        } catch {
-            print("Failed to decode JSON array: \(error)")
-            return nil
-        }
+        } catch { return nil }
     }
 }

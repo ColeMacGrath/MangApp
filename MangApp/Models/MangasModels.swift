@@ -96,7 +96,7 @@ class Manga: Codable, Identifiable, Hashable {
                 Theme(id: "1", theme: "Other Theme")
             ],
             background: "BackGround Theme",
-            volumes: 5,
+            volumes: 6,
             endDate: Date(),
             mainPicture: "https://cdn.myanimelist.net/images/manga/1/152314l.jpg",
             url: "https://www.google.com/?client=safari")
@@ -110,6 +110,48 @@ class Manga: Codable, Identifiable, Hashable {
         hasher.combine(id)
     }
 }
+
+class User: Codable, Hashable, Identifiable {
+    let id: Int
+    
+    init(id: Int) {
+        self.id = id
+    }
+    
+    static func == (lhs: User, rhs: User) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
+
+class OwnManga: Codable, Hashable, Identifiable {
+    var id: String
+    var volumesOwned: [Int]
+    var completeCollection: Bool
+    var readingVolume: Int?
+    var manga: Manga
+    
+    init(id: String, volumesOwned: [Int], completeCollection: Bool, readingVolume: Int?, manga: Manga) {
+        self.id = id
+        self.volumesOwned = volumesOwned
+        self.completeCollection = completeCollection
+        self.readingVolume = readingVolume
+        self.manga = manga
+    }
+    
+    static func == (lhs: OwnManga, rhs: OwnManga) -> Bool {
+        return lhs.id == rhs.id
+    }
+    
+    func hash(into hasher: inout Hasher) {
+        hasher.combine(id)
+    }
+}
+
 
 class Genre: Codable, Hashable, Identifiable {
     var id: String

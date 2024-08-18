@@ -16,6 +16,7 @@ struct MangApp: App {
     @State private var searchModel = SearchModel()
     @State private var authorsModel = AuthorsModel()
     @State private var signUpModel = SignUpModel()
+    @State private var ownMangaModel = OwnMangaModel()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -40,6 +41,7 @@ struct MangApp: App {
         .environment(authorsModel)
         .environment(searchModel)
         .environment(signUpModel)
+        .environment(ownMangaModel)
         .modelContainer(sharedModelContainer)
     }
 }

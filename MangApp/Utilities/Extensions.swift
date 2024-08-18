@@ -57,6 +57,7 @@ extension URL {
     static let genres = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.genres.rawValue)
     static let themes = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.themes.rawValue)
     static let users = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.users.rawValue)
+    static let ownManga = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.collection.rawValue).appending(path: APIConfig.APIEndpoints.manga.rawValue)
     
     static func mangas(page: Int, per: Int, collectionType: CollectionViewType, queryPaths: [String]? = nil) -> URL? {
         guard var url = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue) else { return nil }
@@ -68,6 +69,10 @@ extension URL {
             url.append(path: APIConfig.APIEndpoints.bestMangas.rawValue)
         case .author:
             url.append(path: APIConfig.APIEndpoints.author.rawValue)
+        case .collection:
+            if let colllectionURL = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.collection.rawValue).appending(path: APIConfig.APIEndpoints.manga.rawValue) {
+                url = colllectionURL
+            }
         }
         
         queryPaths?.forEach { url.append(path: $0) }

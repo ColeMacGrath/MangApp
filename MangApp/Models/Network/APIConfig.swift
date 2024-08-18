@@ -20,6 +20,8 @@ struct APIConfig {
         case genres
         case themes
         case users
+        case collection
+        case manga
     }
     
     static var baseURL: URL? {

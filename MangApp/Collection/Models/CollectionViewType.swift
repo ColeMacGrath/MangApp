@@ -11,4 +11,5 @@ enum CollectionViewType {
     case mangas
     case best
     case author
+    case collection
 }

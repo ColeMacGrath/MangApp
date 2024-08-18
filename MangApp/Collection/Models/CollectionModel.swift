@@ -9,13 +9,13 @@ import Foundation
 
 @Observable
 class CollectionModel {
-    var mangaList: [Manga] = []
     private var currentPage: Int = 1
     private var totalItems: Int = 0
     private var isLoading: Bool = false
     private var isDataLoaded: Bool = false
     private var collectionType: CollectionViewType
     private var queryPaths: [String]?
+    var mangaList: [Manga] = []
     var interactor: NetworkInteractor
 
     init(interactor: NetworkInteractor = NetworkInteractor.shared, collectionType: CollectionViewType = .best, queryPaths: [String]? = nil) {
@@ -48,9 +48,10 @@ class CollectionModel {
             self.mangaList.setMangaArray()
             return
         }
+        
         Task {
-            guard let url = URL.mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths),
-                  let request: URLRequest = .request(method: .GET, url: url),
+            guard let url: URL = .mangas(page: page, per: per, collectionType: collectionType, queryPaths: queryPaths),
+                  let request: URLRequest = .request(method: .GET, url: url, authenticated: collectionType == .collection),
                   let response = await interactor.perform(request: request, responseType: [Manga].self),
                   let mangas  = response.data else {
                 isLoading = false

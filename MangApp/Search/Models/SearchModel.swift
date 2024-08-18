@@ -17,24 +17,19 @@ class SearchModel {
     var isLoading: Bool = false
     var hasError: Bool = false
     var errorMessage: String = ""
-    
     var searchText: String = ""
     var selectedSearchType: SearchType = .title
     var availableGenres: [Genre] = []
     var availableDemographics: [Demographic] = []
     var availableThemes: [Theme] = []
     var mangasResults: [Manga] = []
-    
     var interactor: NetworkInteractor
-    
     var hasMorePages: Bool {
         return mangasResults.count < totalItems
     }
-    
     var filtersLoaded: Bool {
         return !availableGenres.isEmpty && !availableDemographics.isEmpty && !availableThemes.isEmpty
     }
-    
     var selectedGenres: [Genre] = [] {
         didSet {
             if !isBulkUpdating {
@@ -42,7 +37,6 @@ class SearchModel {
             }
         }
     }
-    
     var selectedDemographics: [Demographic] = [] {
         didSet {
             if !isBulkUpdating {
@@ -50,7 +44,6 @@ class SearchModel {
             }
         }
     }
-    
     var selectedThemes: [Theme] = [] {
         didSet {
             if !isBulkUpdating {

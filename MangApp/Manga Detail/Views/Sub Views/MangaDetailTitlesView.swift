@@ -9,10 +9,21 @@ import SwiftUI
 
 struct MangaDetailTitlesView: View {
     var manga: Manga
+    @State var isLoaded: Bool
+    @State var isCollectionCompleted: Bool
+    
     var body: some View {
-        Text(manga.title)
-            .bold()
-            .font(.title)
+        HStack {
+            Text(manga.title)
+                
+            if isLoaded,
+               isCollectionCompleted {
+                Text(" ✅")
+            }
+        }
+        .bold()
+        .font(.title)
+        
         Text(manga.titleJapanese ?? "")
             .foregroundStyle(.secondary)
             .font(.title2)
@@ -22,7 +33,7 @@ struct MangaDetailTitlesView: View {
 
 #Preview {
     NavigationStack {
-        MangaDetailTitlesView(manga: Manga.defaultManga)
+        MangaDetailTitlesView(manga: .defaultManga, isLoaded: true, isCollectionCompleted: true)
     }
 }
 

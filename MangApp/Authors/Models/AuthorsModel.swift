@@ -23,9 +23,9 @@ class AuthorsModel {
             return
         }
         
+        guard let url = URL.authors else { return }
+        let request = URLRequest(url: url)
         Task {
-            guard let url = URL.authors else { return }
-            let request = URLRequest(url: url)
             guard let response = await interactor.perform(request: request, responseType: [Author].self)?.data else { return }
             authors = response
         }
