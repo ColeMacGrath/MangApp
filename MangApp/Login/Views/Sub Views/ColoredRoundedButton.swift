@@ -31,7 +31,7 @@ struct ColoredRoundedButton: View {
             .frame(maxWidth: .infinity)
             .background(backgroundColor)
             .cornerRadius(10)
-            .padding([.horizontal, .top])
+            .padding(.horizontal)
         }.disabled(asLoader)
     }
 }

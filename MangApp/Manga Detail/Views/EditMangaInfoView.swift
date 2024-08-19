@@ -10,6 +10,7 @@ import SwiftUI
 struct EditMangaInfoView: View {
     @Environment(OwnMangaModel.self) private var model
     @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.modelContext) private var modelContext
     
     var body: some View {
         @Bindable var model = model
@@ -33,7 +34,7 @@ struct EditMangaInfoView: View {
             ColoredRoundedButton(title: "Save") {
                 if let manga = model.manga {
                     Task {
-                        if await model.save(manga: manga) {
+                        if await model.save(manga: manga, context: modelContext) {
                             presentationMode.wrappedValue.dismiss()
                         }
                     }

@@ -6,11 +6,14 @@
 //
 
 import SwiftUI
+import TipKit
 
 struct MangasCollectonView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(CollectionModel.self) private var model
+    @Environment(\.modelContext) private var modelContext
     @State private var columns: [GridItem] = Array(repeating: .init(.flexible()), count: 3)
+    @State private var showOfflineModeModal: Bool = false
     var title: String
     
     var body: some View {
@@ -31,16 +34,36 @@ struct MangasCollectonView: View {
                     }
                 }
             }
+            .toolbar {
+                ToolbarItem(placement: .navigationBarTrailing) {
+                    Button(action: {
+                        if model.offline {
+                            model.offline = false
+                            model.loadInitialMangas()
+                        } else {
+                            showOfflineModeModal = true
+                        }
+                    }) {
+                        model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
+                    }
+                }
+            }
             .navigationTitle(title)
             .onAppear {
                 updateColumns(isCompact: horizontalSizeClass == .compact)
-                model.loadInitialMangas()
+                model.loadInitialMangas(context: modelContext)
             }
             .onChange(of: geometry.size) {
                 updateColumns(isCompact: horizontalSizeClass == .compact)
             }
             .refreshable {
                 model.reloadMangas()
+            }
+            .sheet(isPresented: $showOfflineModeModal) {
+                NavigationStack {
+                    OfflineInfoView()
+                        .environment(model)
+                }
             }
         }
     }

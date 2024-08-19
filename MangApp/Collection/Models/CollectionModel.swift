@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 @Observable
 class CollectionModel {
@@ -14,6 +15,7 @@ class CollectionModel {
     private var isLoading: Bool = false
     private var isDataLoaded: Bool = false
     private var queryPaths: [String]?
+    var offline = false
     var collectionType: CollectionViewType
     var mangaList: [Manga] = []
     var ownMangas: [OwnManga] = []
@@ -25,15 +27,31 @@ class CollectionModel {
         self.queryPaths = queryPaths
     }
     
-    func loadInitialMangas(per: Int = 20) {
+    func loadInitialMangas(per: Int = 20, context: ModelContext? = nil) {
         if collectionType == .collection {
             isDataLoaded = false
         }
         guard !isDataLoaded else { return }
+        guard !offline else {
+            guard let context else { return }
+            loadLocalCollection(context: context)
+            return
+        }
+        
         currentPage = 1
         mangaList.removeAll()
         loadMangas(page: currentPage, per: per)
         isDataLoaded = true
+    }
+    
+    private func loadLocalCollection(context: ModelContext) {
+        let fetchDescriptor = FetchDescriptor<OwnManga>()
+        do {
+            ownMangas = try context.fetch(fetchDescriptor)
+            isDataLoaded = true
+        } catch {
+            
+        }
     }
     
     func loadMoreMangas(per: Int = 20) {

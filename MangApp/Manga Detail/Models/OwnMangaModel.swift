@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import SwiftData
 
 @Observable
 class OwnMangaModel {
@@ -21,7 +22,6 @@ class OwnMangaModel {
         self.interactor = interactor
     }
     
-    @MainActor
     func loadOwn(manga: Manga) {
         guard let url: URL = .ownManga?.appending(path: String(manga.id)),
               let request: URLRequest = .request(method: .GET, url: url, authenticated: true) else { return }
@@ -45,23 +45,45 @@ class OwnMangaModel {
         }
     }
     
-    func save(manga: Manga) async -> Bool {
+    @MainActor
+    func save(manga: Manga, context: ModelContext) async -> Bool {
         guard let url: URL = .ownManga,
               let body = createRequestBody(manga: manga),
               let request: URLRequest = .request(method: .POST, url: url, body: body, authenticated: true) else { return false }
         guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .created else { return false }
         let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
+        let newOwnManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
+        context.insert(newOwnManga)
         reset()
-        ownManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
+        ownManga = newOwnManga
         return true
     }
     
-    func delete(manga: Manga) async -> Bool {
+    @MainActor
+    func delete(manga: Manga, context: ModelContext) async -> Bool {
+        guard await deleteRemote(manga: manga) else { return false }
+        deleteLocal(manga: manga, context: context)
+        return true
+    }
+    
+    private func deleteRemote(manga: Manga) async -> Bool {
         guard let url: URL = .ownManga?.appending(path: String(manga.id))   ,
               let request: URLRequest = .request(method: .DELETE, url: url, authenticated: true) else { return false }
         guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .ok else { return false }
         reset()
         return true
+    }
+    
+    private func deleteLocal(manga: Manga, context: ModelContext) {
+        let fetchDescriptor = FetchDescriptor<OwnManga>(
+            predicate: #Predicate { $0.manga.id == manga.id }
+        )
+        do {
+            let ownMangasToDelete = try context.fetch(fetchDescriptor)
+            ownMangasToDelete.forEach({ print($0.manga.title); context.delete($0) })
+        } catch {
+            print("Failed to fetch or delete OwnManga instances: \(error)")
+        }
     }
     
     private func reset() {

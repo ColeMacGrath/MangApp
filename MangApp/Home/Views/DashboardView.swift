@@ -24,7 +24,7 @@ struct DashboardView: View {
                         .navigationTitle("Home")
                         .toolbar {
 #if !os(macOS)
-                            ToolbarItem(placement: .navigationBarTrailing) {
+                            ToolbarItem(placement: .topBarTrailing) {
                                 Button {
                                     showAboutView = true
                                 } label: {

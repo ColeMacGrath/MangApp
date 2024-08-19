@@ -18,9 +18,15 @@ struct MangApp: App {
     @State private var signUpModel = SignUpModel()
     @State private var ownMangaModel = OwnMangaModel()
     
+    
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
-            Item.self,
+            OwnManga.self,
+            Manga.self,
+            Genre.self,
+            Author.self,
+            Theme.self,
+            Demographic.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
 

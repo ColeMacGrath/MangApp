@@ -55,7 +55,7 @@ struct SearchView: View {
                             })
                         }
 #else
-                        ToolbarItem(placement: .navigationBarTrailing) {
+                        ToolbarItem(placement: .topBarTrailing) {
                             if model.filtersLoaded {
                                 FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
                                     model.resetToInitialState()

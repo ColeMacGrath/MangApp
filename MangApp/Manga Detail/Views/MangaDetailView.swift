@@ -10,6 +10,7 @@ import SwiftUI
 struct MangaDetailView: View {
     @Environment(\.horizontalSizeClass) private var horizontalSize
     @Environment(\.presentationMode) private var presentationMode
+    @Environment(\.modelContext) private var modelContext
     @Environment(OwnMangaModel.self) private var model
     @Environment(CollectionModel.self) private var collectionModel
     @State private var contentHeight: CGFloat = 0
@@ -39,7 +40,7 @@ struct MangaDetailView: View {
                     } else if model.ownManga != nil {
                         ColoredRoundedButton(title: "Remove from collection") {
                             Task {
-                                if await model.delete(manga: manga) {
+                                if await model.delete(manga: manga, context: modelContext) {
                                     collectionModel.remove(manga: manga)
                                     presentationMode.wrappedValue.dismiss()
                                 }
@@ -52,7 +53,7 @@ struct MangaDetailView: View {
                                 isEditPresented = true
                             } else {
                                 Task {
-                                    _ = await model.save(manga: manga)
+                                    _ = await model.save(manga: manga, context: modelContext)
                                 }
                             }
                             
