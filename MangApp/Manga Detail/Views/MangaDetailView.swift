@@ -66,7 +66,7 @@ struct MangaDetailView: View {
                 }
             }
             .onAppear {
-                model.loadOwn(manga: manga)
+                model.loadOwn(manga: manga, offline: collectionModel.offline, context: modelContext)
             }
             .toolbar {
                 if model.ownManga != nil {

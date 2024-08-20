@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 final class Demographic: Codable, Hashable, Identifiable {
-    @Attribute(.unique)
     var id: String
     var demographic: String
     

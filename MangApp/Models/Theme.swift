@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 final class Theme: Codable, Hashable, Identifiable {
-    @Attribute(.unique)
     var id: String
     var theme: String
     init(id: String, theme: String) {

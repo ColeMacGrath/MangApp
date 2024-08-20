@@ -45,12 +45,13 @@ class CollectionModel {
     }
     
     private func loadLocalCollection(context: ModelContext) {
+        self.ownMangas.removeAll()
         let fetchDescriptor = FetchDescriptor<OwnManga>()
         do {
             ownMangas = try context.fetch(fetchDescriptor)
             isDataLoaded = true
         } catch {
-            
+            isDataLoaded = true
         }
     }
     

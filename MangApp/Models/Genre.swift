@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 final class Genre: Codable, Hashable, Identifiable {
-    @Attribute(.unique)
     var id: String
     var genre: String
     

@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 class Manga: Codable, Hashable, Identifiable {
-    @Attribute(.unique)
     var id: Int
     var title: String
     var titleJapanese: String?

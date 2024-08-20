@@ -10,7 +10,6 @@ import SwiftData
 
 @Model
 final class Author: Codable, Hashable, Identifiable {
-    @Attribute(.unique)
     var id: String
     var lastName: String
     var firstName: String

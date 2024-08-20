@@ -17,12 +17,46 @@ class OwnMangaModel {
     var manga: Manga?
     var isLoaded = false
     
-    
     init(manga: Manga? = nil, interactor: NetworkInteractor = NetworkInteractor.shared, ownManga: OwnManga? = nil) {
         self.interactor = interactor
     }
     
-    func loadOwn(manga: Manga) {
+    private func setLoadedItems(manga: Manga, ownManga: OwnManga) {
+        self.ownManga = ownManga
+        self.manga = manga
+        selectedVolumes = ownManga.volumesOwned
+        selectedReadingVolume = ownManga.readingVolume
+        isLoaded = true
+    }
+    
+    private func loadOwnLocal(manga: Manga, context: ModelContext) -> OwnManga? {
+        let fetchDescriptor = FetchDescriptor<OwnManga>(
+            predicate: #Predicate { $0.manga.id == manga.id }
+        )
+        do {
+            let ownManga = try context.fetch(fetchDescriptor).first
+            return ownManga
+        } catch {
+            print("Failed to fetch or delete OwnManga instances: \(error)")
+            return nil
+        }
+    }
+    
+    private func setSelectedValues(newOwnManga: OwnManga) {
+        self.ownManga = newOwnManga
+        selectedReadingVolume = ownManga?.readingVolume
+        selectedVolumes = ownManga?.volumesOwned
+    }
+    
+    func loadOwn(manga: Manga, offline: Bool = false, context: ModelContext? = nil) {
+        guard !offline else {
+            guard let context,
+            let ownManga = loadOwnLocal(manga: manga, context: context)
+            else { return }
+            setLoadedItems(manga: manga, ownManga: ownManga)
+            return
+        }
+        
         guard let url: URL = .ownManga?.appending(path: String(manga.id)),
               let request: URLRequest = .request(method: .GET, url: url, authenticated: true) else { return }
         isLoaded = false
@@ -36,27 +70,23 @@ class OwnMangaModel {
                 isLoaded = true
                 return
             }
-            
-            ownManga = response
-            self.manga = manga
-            selectedVolumes = ownManga?.volumesOwned
-            selectedReadingVolume = ownManga?.readingVolume
-            isLoaded = true
+            setLoadedItems(manga: manga, ownManga: response)
         }
     }
     
     @MainActor
-    func save(manga: Manga, context: ModelContext) async -> Bool {
-        guard let url: URL = .ownManga,
-              let body = createRequestBody(manga: manga),
-              let request: URLRequest = .request(method: .POST, url: url, body: body, authenticated: true) else { return false }
-        guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .created else { return false }
+    private func saveLocal(newOwnManga: OwnManga? = nil, manga: Manga, context: ModelContext) {
         let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
-        let newOwnManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
-        context.insert(newOwnManga)
-        reset()
-        ownManga = newOwnManga
-        return true
+        let newOwnManga = newOwnManga ?? OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
+        
+        if let localOwnManga = loadOwnLocal(manga: manga, context: context) {
+            localOwnManga.volumesOwned = selectedVolumes ?? []
+            localOwnManga.completeCollection = completeCollection
+            localOwnManga.readingVolume = selectedReadingVolume
+        } else {
+            context.insert(newOwnManga)
+        }
+        setSelectedValues(newOwnManga: newOwnManga)
     }
     
     @MainActor
@@ -74,6 +104,7 @@ class OwnMangaModel {
         return true
     }
     
+    @MainActor
     private func deleteLocal(manga: Manga, context: ModelContext) {
         let fetchDescriptor = FetchDescriptor<OwnManga>(
             predicate: #Predicate { $0.manga.id == manga.id }
@@ -95,6 +126,26 @@ class OwnMangaModel {
     private func createRequestBody(manga: Manga) -> EditMangaRequestBody? {
         let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
         return EditMangaRequestBody(manga: manga.id, completeCollection: completeCollection, volumesOwned: selectedVolumes ?? [], readingVolume: selectedReadingVolume)
+    }
+    
+    @MainActor
+    func save(manga: Manga, context: ModelContext, offline: Bool = false) async -> Bool {
+        guard !offline else {
+            saveLocal(manga: manga, context: context)
+            return true
+        }
+        
+        guard let url: URL = .ownManga,
+              let body = createRequestBody(manga: manga),
+              let request: URLRequest = .request(method: .POST, url: url, body: body, authenticated: true) else { return false }
+        guard await interactor.perform(request: request, responseType: EditMangaRequestBody.self)?.status == .created else { return false }
+        let completeCollection = selectedVolumes?.count ?? 0 >= manga.volumes ?? 0
+        
+        let newOwnManga = OwnManga(id: UUID().uuidString, volumesOwned: selectedVolumes ?? [], completeCollection: completeCollection, readingVolume: selectedReadingVolume, manga: manga)
+        saveLocal(newOwnManga: ownManga, manga: manga, context: context)
+        setSelectedValues(newOwnManga: newOwnManga)
+        
+        return true
     }
     
     func append(volume: Int) {
