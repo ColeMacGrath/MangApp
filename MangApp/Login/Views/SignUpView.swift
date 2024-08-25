@@ -15,24 +15,29 @@ struct SignUpView: View {
     var body: some View {
         @Bindable var model = model
         NavigationStack {
-            LoginBodyView(email: $model.email, password: $model.password, isValidMail: $model.isValidMail, isValidPassword: $model.isValidPassword)
-                .padding(.top)
-            ImageTextField(text: $model.confirmedPassword, isValid: $model.isValidConfirmedPassword, outsideTitle: "Confirm password", image: Image(systemName: "lock"), placeholderText: "Enter password", invalidMessage: "Password doesn't match", isSecure: true)
-                .padding(.horizontal)
-            Spacer()
-            RoundedActionButton(title: "Sign Up", backgroundColor: .accentColor) {
-                model.signUp()
-            }.disabled(model.isSignUpButtonDisabled)
-            .padding(.vertical)
-            .navigationTitle("Enter your details")
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Cancel") {
-                        presentationMode.wrappedValue.dismiss()
-                    }.buttonStyle(.automatic)
-                }
+            VStack {
+                LoginBodyView(email: $model.email, password: $model.password, isValidMail: $model.isValidMail, isValidPassword: $model.isValidPassword)
+                    .padding(.top)
+                ImageTextField(text: $model.confirmedPassword, isValid: $model.isValidConfirmedPassword, outsideTitle: "Confirm password", image: Image(systemName: "lock"), placeholderText: "Enter password", invalidMessage: "Password doesn't match", isSecure: true)
+                    .padding(.horizontal)
+                Spacer()
+                RoundedActionButton(title: "Sign Up", backgroundColor: .accentColor) {
+                    model.signUp()
+                }.disabled(model.isSignUpButtonDisabled)
+                    .padding(.vertical)
+                    .navigationTitle("Enter your details")
+                    .toolbar {
+                        ToolbarItem(placement: .confirmationAction) {
+                            Button("Cancel") {
+                                presentationMode.wrappedValue.dismiss()
+                            }.buttonStyle(.automatic)
+                        }
+                    }
             }
+            .loadingView(isPresented: $model.showLoadingView, message: "Signing up", fullScreen: true)
+            .alertView(isPresented: $model.showAlertView, message: $model.alertMessage.wrappedValue, mode: $model.alertType.wrappedValue)
         }
+        
     }
 }
 

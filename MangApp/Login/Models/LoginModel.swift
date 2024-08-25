@@ -19,7 +19,8 @@ class LoginModel {
             validatePassword()
         }
     }
-    var showAlert: Bool = false
+    var showLoadingView: Bool = false
+    var showAlertView: Bool = false
     var showSignUpView: Bool = false
     var isValidPassword: Bool = true
     var isValidMail: Bool = true
@@ -41,12 +42,15 @@ class LoginModel {
     
     func login() {
         Task {
+            showLoadingView = true
             let value = await interactor.login(username: email.lowercased(), password: password)
             
             guard value == .ok else {
-                showAlert = true
+                showLoadingView = false
+                showAlertView = true
                 return
             }
+            showLoadingView = false
             interactor.isLoggedIn = true
         }
     }

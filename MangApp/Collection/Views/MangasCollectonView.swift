@@ -35,16 +35,18 @@ struct MangasCollectonView: View {
                 }
             }
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        if model.offline {
-                            model.offline = false
-                            model.loadInitialMangas()
-                        } else {
-                            showOfflineModeModal = true
+                if model.collectionType == .collection {
+                    ToolbarItem(placement: .navigationBarTrailing) {
+                        Button(action: {
+                            if model.offline {
+                                model.offline = false
+                                model.loadInitialMangas()
+                            } else {
+                                showOfflineModeModal = true
+                            }
+                        }) {
+                            model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
                         }
-                    }) {
-                        model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
                     }
                 }
             }

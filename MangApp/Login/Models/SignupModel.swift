@@ -9,6 +9,10 @@ import Foundation
 
 @Observable
 class SignUpModel {
+    var showLoadingView = false
+    var showAlertView = false
+    var alertMessage = ""
+    var alertType: AlertType = .error
     var email: String = "" {
         didSet {
             validateEmail()
@@ -36,15 +40,33 @@ class SignUpModel {
         self.interactor = interactor
     }
     
+    @MainActor
     func signUp() {
         Task {
+            showLoadingView = true
             let value = await interactor.signUp(email: email.lowercased(), password: password)
-            if value == .created {
-                LoginModel(username: email.lowercased(), password: password).login()
-                email.removeAll()
-                password.removeAll()
-                confirmedPassword.removeAll()
+            guard value == .created else {
+                showLoadingView = false
+                alertMessage = "Oops, an error ocurred at sign up, try agin"
+                alertType = .error
+                showAlertView = true
+                return
             }
+            
+            let loginValue = await interactor.login(username: email.lowercased(), password: password)
+            guard loginValue == .ok else {
+                showLoadingView = false
+                alertMessage = "Account created, but ocurred an error at login"
+                alertType = .warning
+                showAlertView = true
+                return
+            }
+            
+            showLoadingView = false
+            interactor.isLoggedIn = true
+            email.removeAll()
+            password.removeAll()
+            confirmedPassword.removeAll()
         }
     }
     

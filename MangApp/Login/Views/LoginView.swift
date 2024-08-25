@@ -77,13 +77,10 @@ struct LoginView: View {
                     }
                 }
             }
-        }.alert(isPresented: $model.showAlert) {
-            Alert(
-                title: Text("Important message"),
-                message: Text("This is an alert message."),
-                dismissButton: .default(Text("Got it!"))
-            )
+            .loadingView(isPresented: $model.showLoadingView, message: "logging in", fullScreen: true)
+            .alertView(isPresented: $model.showAlertView, message: "Oops, an error ocurred at loggin in, try agin", mode: .error)
         }
+        
     }
 }
 

@@ -20,6 +20,14 @@ extension View {
     func myCustomValue(_ isOnPreview: Bool) -> some View {
         environment(\.isOnPreview, isOnPreview)
     }
+    
+    func loadingView(isPresented: Binding<Bool>, message: String? = nil, color: Color = .accentColor, fullScreen: Bool = false) -> some View {
+        self.modifier(LoadingAlertModifier(isPresented: isPresented, message: message, color: color, fullscreen: fullScreen))
+    }
+    
+    func alertView(isPresented: Binding<Bool>, message: String, mode: AlertType) -> some View {
+        self.modifier(ToastModifier(isPresented: isPresented, message: message, mode: mode))
+    }
 }
 
 extension String {
