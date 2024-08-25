@@ -12,9 +12,9 @@ import SwiftData
 class CollectionModel {
     private var currentPage: Int = 1
     private var totalItems: Int = 0
-    private var isLoading: Bool = false
     private var isDataLoaded: Bool = false
     private var queryPaths: [String]?
+    var isLoading: Bool = false
     var offline = false
     var collectionType: CollectionViewType
     var mangaList: [Manga] = []
@@ -28,9 +28,6 @@ class CollectionModel {
     }
     
     func loadInitialMangas(per: Int = 20, context: ModelContext? = nil) {
-        if collectionType == .collection {
-            isDataLoaded = false
-        }
         guard !isDataLoaded else { return }
         guard !offline else {
             guard let context else { return }
@@ -72,6 +69,7 @@ class CollectionModel {
             return
         }
         let collection = collectionType == .collection
+        isLoading = true
         Task {
             guard let url: URL = .mangas(page: collection ? nil : page, per: collection ? nil : per, collectionType: collectionType, queryPaths: queryPaths),
                   let request: URLRequest = .request(method: .GET, url: url, authenticated: collectionType == .collection) else {

@@ -20,11 +20,6 @@ extension URLRequest {
         if appAuthenticated {
             request.setValue(getAppToken(), forHTTPHeaderField: "App-Token")
         }
-        if method == .POST {
-            guard let body else { return nil }
-            request = setPostRequest(request: request, body: body)
-            
-        }
         if authorization {
             guard let body,
                   let base64String = getLoginRequest(body: body) else { return nil}

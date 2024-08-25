@@ -18,7 +18,7 @@ struct AuthorsView: View {
             if model.authors.isEmpty {
                 HStack {
                     ProgressView()
-                    Text("Loading")
+                    Text("Loading...")
                 }.foregroundStyle(.secondary)
             } else {
                 ScrollView {

@@ -11,6 +11,7 @@ struct APIConfig {
     static let baseURLString = "https://mymanga-acacademy-5607149ebe3d.herokuapp.com"
     enum APIEndpoints: String {
         case login = "users/login"
+        case renew = "users/renew"
         case list
         case mangas
         case bestMangas

@@ -86,6 +86,19 @@ class NetworkInteractor {
         return .appUnavailable
     }
     
+    func renew() async -> URLRequestResult {
+        guard let url: URL = .renew,
+              let request: URLRequest = .request(method: .POST, url: url, authenticated: true) else { return .badRequest }
+        let response = await perform(request: request, responseType: LoginResponse.self)
+        guard let response else { return .appUnavailable }
+        
+        if let token = response.data?.user.authToken,
+           KeychainManager.shared.save(token: token) {
+            return response.status
+        }
+        return .appUnavailable
+    }
+    
     func mangasArray(collectionType: CollectionViewType) async -> (status: URLRequestResult, mangas: [Manga]?) {
         let url: URL? = collectionType == .best ? .bestMangas : .mangas
         guard let url,

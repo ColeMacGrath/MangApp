@@ -46,9 +46,9 @@
 				Home/Views/DashboardView.swift,
 				"Home/Views/Sub Views/SelectableItem.swift",
 				"Home/Views/Sub Views/SubtitleRowView.swift",
-				Item.swift,
 				Login/Models/LoginModel.swift,
 				Login/Models/SignupModel.swift,
+				Login/Models/TokenRenewalToken.swift,
 				Login/Models/User.swift,
 				Login/Views/InitialView.swift,
 				Login/Views/LoginView.swift,
@@ -473,6 +473,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MangApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -513,6 +514,7 @@
 				ENABLE_HARDENED_RUNTIME = YES;
 				ENABLE_PREVIEWS = YES;
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = MangApp/Info.plist;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.books";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;

@@ -58,6 +58,7 @@ extension Date {
 
 extension URL {
     static let login = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.login.rawValue)
+    static let renew = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.renew.rawValue)
     static let mangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.mangas.rawValue)
     static let bestMangas = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.bestMangas.rawValue)
     static let authors = APIConfig.baseURL?.appending(path: APIConfig.APIEndpoints.list.rawValue).appending(path: APIConfig.APIEndpoints.authors.rawValue)

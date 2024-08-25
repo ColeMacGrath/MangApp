@@ -10,6 +10,7 @@ import SwiftData
 
 @main
 struct MangApp: App {
+    @Environment(\.scenePhase) var scenePhase
     @State private var loginModel = LoginModel()
     @State private var dashboardModel = DashboardModel()
     @State private var collectionModel = CollectionModel()
@@ -17,7 +18,7 @@ struct MangApp: App {
     @State private var authorsModel = AuthorsModel()
     @State private var signUpModel = SignUpModel()
     @State private var ownMangaModel = OwnMangaModel()
-    
+    @State private var tokenRenewalToken = TokenRenewalToken()
     
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([
@@ -29,17 +30,22 @@ struct MangApp: App {
             Demographic.self
         ])
         let modelConfiguration = ModelConfiguration(schema: schema, isStoredInMemoryOnly: false)
-
+        
         do {
             return try ModelContainer(for: schema, configurations: [modelConfiguration])
         } catch {
             fatalError("Could not create ModelContainer: \(error)")
         }
     }()
-
+    
     var body: some Scene {
         WindowGroup {
             InitialView()
+                .onChange(of: scenePhase) {
+                    if scenePhase == .active {
+                        tokenRenewalToken.renewTokenIfNeeded()
+                    }
+                }
         }
         .environment(loginModel)
         .environment(dashboardModel)

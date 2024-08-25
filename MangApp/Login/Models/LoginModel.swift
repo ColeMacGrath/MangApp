@@ -32,6 +32,10 @@ class LoginModel {
     
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
+        if isFirstLaunch() {
+            interactor.isLoggedIn = false
+            _ = KeychainManager.shared.deleteToken()
+        }
     }
     
     init (username: String, password: String, interactor: NetworkInteractor = NetworkInteractor.shared) {
@@ -60,6 +64,13 @@ class LoginModel {
             interactor.isLoggedIn = false
             showSignUpView = false
         }
+    }
+    
+    private func isFirstLaunch() -> Bool {
+        let hasLaunchedBefore = !UserDefaults.standard.bool(forKey: "hasLaunchedBefore")
+        guard hasLaunchedBefore else { return false }
+        UserDefaults.standard.set(true, forKey: "hasLaunchedBefore")
+        return hasLaunchedBefore
     }
     
     private func validateEmail() -> Bool {

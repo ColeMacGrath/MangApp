@@ -21,13 +21,13 @@ class KeychainManager {
     var hasToken: Bool {
         self.token != nil
     }
-
+    
     private func save(data: Data, identifier: String) -> Bool {
         let query = [
             kSecClass as String: kSecClassGenericPassword as String,
             kSecAttrAccount as String: identifier,
             kSecValueData as String: data] as [String: Any]
-
+        
         SecItemDelete(query as CFDictionary)
         let status = SecItemAdd(query as CFDictionary, nil)
         
@@ -47,6 +47,7 @@ class KeychainManager {
     func save(dictionary: Dictionary<String, Any>, identifier: String? = nil) -> Bool {
         guard let data = try? JSONSerialization.data(withJSONObject: dictionary, options: []) else { return false }
         let identifier = identifier ?? self.identifier
+        UserDefaults.standard.set(Date(), forKey: "lastRenewalDate")
         return self.save(data: data, identifier: identifier)
     }
     
@@ -73,7 +74,7 @@ class KeychainManager {
         let query = [
             kSecClass as String: kSecClassGenericPassword as String,
             kSecAttrAccount as String: identifier] as [String: Any]
-
+        
         let status = SecItemDelete(query as CFDictionary)
         return status == errSecSuccess || status == errSecItemNotFound
     }

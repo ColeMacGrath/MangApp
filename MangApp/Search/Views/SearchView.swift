@@ -30,8 +30,9 @@ struct SearchView: View {
                             }
                         
                         if !model.mangasResults.isEmpty {
-                            SubtitleSerachView(selectionType: $model.selectedSearchType)
-                            
+                            if !model.searchText.isEmpty  {
+                                SubtitleSerachView(selectionType: $model.selectedSearchType)
+                            }
                             LazyVGrid(columns: columns) {
                                 ForEach(model.mangasResults) { manga in
                                     NavigationLink(destination: MangaDetailView(manga: manga)) {

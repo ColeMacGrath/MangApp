@@ -15,31 +15,43 @@ struct DashboardView: View {
     var body: some View {
         @Bindable var model = model
         NavigationStack {
-            GeometryReader { geometry in
-                ScrollView {
-                    VStack {
-                        MangaHorizontalScrollView(title: "My Collection", mangas: $model.mangaCollection.wrappedValue)
-                        MangaHorizontalScrollView(title: "The Best", mangas: $model.bestMangas.wrappedValue)
-                    }.frame(height: horizontalSizeClass == .compact ? geometry.size.height * 1.3 : geometry.size.height * 1.6)
-                        .navigationTitle("Home")
-                        .toolbar {
+            if model.isLoading {
+                HStack(alignment: .center) {
+                    ProgressView()
+                    Text("Loading...")
+                }.foregroundStyle(.secondary)
+            } else if model.showErrorView {
+                ErrorView(title: "Something went wrong at loading mangas", button: ColoredRoundedButton(title: "Retry", action: {
+                    model.loadMangas()
+                })).padding()
+            } else {
+                GeometryReader { geometry in
+                    ScrollView {
+                        VStack {
+                            MangaHorizontalScrollView(title: "My Collection", mangas: model.mangaCollection.map { $0.manga })
+                            MangaHorizontalScrollView(title: "The Best", mangas: model.bestMangas)
+                            
+                        }.frame(height: horizontalSizeClass == .compact ? geometry.size.height * 1.3 : geometry.size.height * 1.6)
+                            .navigationTitle("Home")
+                            .toolbar {
 #if !os(macOS)
-                            ToolbarItem(placement: .topBarTrailing) {
-                                Button {
-                                    showAboutView = true
-                                } label: {
-                                    Image(systemName: "person.circle.fill")
+                                ToolbarItem(placement: .topBarTrailing) {
+                                    Button {
+                                        showAboutView = true
+                                    } label: {
+                                        Image(systemName: "person.circle.fill")
+                                    }
                                 }
-                            }
 #endif
-                        }
-                        .sheet(isPresented: $showAboutView) {
-                            AboutView()
-                        }
+                            }
+                            .sheet(isPresented: $showAboutView) {
+                                AboutView()
+                            }
+                    }
                 }
             }
         }.onAppear {
-            model.loadCollection()
+            model.loadMangas()
         }
     }
 }

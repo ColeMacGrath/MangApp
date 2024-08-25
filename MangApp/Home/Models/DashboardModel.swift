@@ -9,34 +9,55 @@ import Foundation
 
 @Observable
 class DashboardModel {
-    var mangaCollection: [Manga] = []
+    var mangaCollection: [OwnManga] = []
     var bestMangas: [Manga] = []
     var interactor: NetworkInteractor
     private var isDataLoaded: Bool = false
+    var showErrorView = false
+    var isLoading = false
     
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
     }
     
-    func loadCollection() {
+    func loadMangas() {
         guard !isOnPreview else {
-            mangaCollection.setMangaArray()
-            bestMangas = mangaCollection
+            mangaCollection = []
+            bestMangas.setMangaArray()
             return
         }
         guard !isDataLoaded else { return }
+        isLoading = true
         Task {
-            async let collectionResponse = interactor.mangasArray(collectionType: .mangas)
-            async let bestMangasResponse = interactor.mangasArray(collectionType: .best)
+            async let collectionResponse = await loadCollection()
+            async let bestMangasResponse = await interactor.mangasArray(collectionType: .best)
             let (collectionResult, bestMangasResult) = await (collectionResponse, bestMangasResponse)
             
-            if collectionResult.status == .ok {
-                mangaCollection = collectionResult.mangas ?? []
+            guard collectionResult.status == .ok, bestMangasResult.status == .ok else {
+                isDataLoaded = false
+                showErrorView = true
+                isLoading = false
+                return
             }
-            if bestMangasResult.status == .ok {
-                bestMangas = bestMangasResult.mangas ?? []
-            }
+            
+            mangaCollection = collectionResult.mangas ?? []
+            bestMangas = bestMangasResult.mangas ?? []
             isDataLoaded = true
+            showErrorView = false
+            isLoading = false
         }
     }
+    
+    private func loadCollection() async -> (status: URLRequestResult, mangas: [OwnManga]?)  {
+        guard !isOnPreview else { return (.ok, []) }
+        guard let url: URL = .mangas(collectionType: .collection),
+              let request: URLRequest = .request(method: .GET, url: url, authenticated: true) else {
+            return (status: URLRequestResult.appUnavailable, mangas: [])
+        }
+        
+        let response = await interactor.perform(request: request, responseType: [OwnManga].self)
+        return (response?.status ?? .ok, response?.data ?? [])
+    }
+    
+    
 }

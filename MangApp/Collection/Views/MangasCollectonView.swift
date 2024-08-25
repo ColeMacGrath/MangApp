@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-import TipKit
 
 struct MangasCollectonView: View {
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
@@ -18,56 +17,66 @@ struct MangasCollectonView: View {
     
     var body: some View {
         @Bindable var model = model
-        GeometryReader { geometry in
-            ScrollView {
-                LazyVGrid(columns: columns) {
-                    ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList) { manga in
-                        NavigationLink(destination: MangaDetailView(manga: manga)
-                            .environment(self.model)) {
-                                MangaItemView(manga: manga)
-                                    .onAppear {
-                                        if manga == model.mangaList.last {
-                                            model.loadMoreMangas()
+        
+        if  model.mangaList.isEmpty && model.ownMangas.isEmpty,
+            model.isLoading {
+            HStack(alignment: .center) {
+                ProgressView()
+                Text("Loading..")
+            }.foregroundStyle(.secondary)
+        } else {
+            
+            GeometryReader { geometry in
+                ScrollView {
+                    LazyVGrid(columns: columns) {
+                        ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList) { manga in
+                            NavigationLink(destination: MangaDetailView(manga: manga)
+                                .environment(self.model)) {
+                                    MangaItemView(manga: manga)
+                                        .onAppear {
+                                            if manga == model.mangaList.last {
+                                                model.loadMoreMangas()
+                                            }
                                         }
-                                    }
-                            }
-                    }
-                }
-            }
-            .toolbar {
-                if model.collectionType == .collection {
-                    ToolbarItem(placement: .navigationBarTrailing) {
-                        Button(action: {
-                            if model.offline {
-                                model.offline = false
-                                model.loadInitialMangas()
-                            } else {
-                                showOfflineModeModal = true
-                            }
-                        }) {
-                            model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
+                                }
                         }
                     }
                 }
-            }
-            .navigationTitle(title)
-            .onAppear {
-                updateColumns(isCompact: horizontalSizeClass == .compact)
-                model.loadInitialMangas(context: modelContext)
-            }
-            .onChange(of: geometry.size) {
-                updateColumns(isCompact: horizontalSizeClass == .compact)
-            }
-            .refreshable {
-                model.reloadMangas()
-            }
-            .sheet(isPresented: $showOfflineModeModal) {
-                NavigationStack {
-                    OfflineInfoView()
-                        .environment(model)
+                .toolbar {
+                    if model.collectionType == .collection {
+                        ToolbarItem(placement: .navigationBarTrailing) {
+                            Button(action: {
+                                if model.offline {
+                                    model.offline = false
+                                    model.loadInitialMangas()
+                                } else {
+                                    showOfflineModeModal = true
+                                }
+                            }) {
+                                model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
+                            }
+                        }
+                    }
+                }
+                .navigationTitle(title)
+                .onAppear {
+                    updateColumns(isCompact: horizontalSizeClass == .compact)
+                    model.loadInitialMangas(context: modelContext)
+                }
+                .onChange(of: geometry.size) {
+                    updateColumns(isCompact: horizontalSizeClass == .compact)
+                }
+                .refreshable {
+                    model.reloadMangas()
+                }
+                .sheet(isPresented: $showOfflineModeModal) {
+                    NavigationStack {
+                        OfflineInfoView()
+                            .environment(model)
+                    }
                 }
             }
-        }
+    }
     }
     
     private func updateColumns(isCompact: Bool) {
