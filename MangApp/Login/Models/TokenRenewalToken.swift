@@ -55,14 +55,14 @@ class TokenRenewalToken {
     }
 
     private func scheduleBackgroundTokenRenewal() {
-        self.registerBackgroundTask()
+        /*self.registerBackgroundTask()
         let request = BGAppRefreshTaskRequest(identifier: tokenRefreshTaskIdentifier)
         request.earliestBeginDate = Date(timeIntervalSinceNow: 24 * 60 * 60)
         do {
             try BGTaskScheduler.shared.submit(request)
         } catch {
             print("Failed to schedule background token renewal: \(error)")
-        }
+        }*/
     }
 
     func handleTokenRenewalTask(task: BGAppRefreshTask) {
@@ -72,9 +72,9 @@ class TokenRenewalToken {
     }
 
     func registerBackgroundTask() {
-        BGTaskScheduler.shared.register(forTaskWithIdentifier: tokenRefreshTaskIdentifier, using: nil) { task in
-            guard let task = task as? BGAppRefreshTask else { return }
-            self.handleTokenRenewalTask(task: task)
-        }
+        //BGTaskScheduler.shared.register(forTaskWithIdentifier: tokenRefreshTaskIdentifier, using: nil) { task in
+        //    guard let task = task as? BGAppRefreshTask else { return }
+        //    self.handleTokenRenewalTask(task: task)
+        //}
     }
 }

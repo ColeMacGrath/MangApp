@@ -108,6 +108,6 @@ struct MangaDetailView: View {
 #Preview {
     NavigationStack {
         MangaDetailView(manga: Manga.defaultManga)
-            .environment(OwnMangaModel(manga: .defaultManga, ownManga: OwnManga(id: "", volumesOwned: [1], completeCollection: false, readingVolume: 1, manga: Manga.defaultManga)))
+            .environment(OwnMangaModel(manga: .defaultManga, ownManga: OwnManga(id: .emptyString, volumesOwned: [1], completeCollection: false, readingVolume: 1, manga: Manga.defaultManga)))
     }
 }

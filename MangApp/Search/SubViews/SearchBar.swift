@@ -39,5 +39,5 @@ struct SearchBar: View {
 
 
 #Preview {
-    SearchBar(text: .constant(""), onCommit: {})
+    SearchBar(text: .constant(.emptyString), onCommit: {})
 }

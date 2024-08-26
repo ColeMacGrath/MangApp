@@ -26,6 +26,6 @@ struct LoginBodyView: View {
 
 
 #Preview {
-    LoginBodyView(email: .constant(""), password: .constant(""), isValidMail: .constant(false), isValidPassword: .constant(false))
+    LoginBodyView(email: .constant(.emptyString), password: .constant(.emptyString), isValidMail: .constant(false), isValidPassword: .constant(false))
 }
 

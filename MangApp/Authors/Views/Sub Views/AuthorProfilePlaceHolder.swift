@@ -21,5 +21,5 @@ struct AuthorProfilePlaceHolder: View {
 }
 
 #Preview {
-    AuthorProfilePlaceHolder(author: Author(id: "", lastName: "", firstName: "", role: ""))
+    AuthorProfilePlaceHolder(author: Author(id: .emptyString, lastName: .emptyString, firstName: .emptyString, role: .emptyString))
 }

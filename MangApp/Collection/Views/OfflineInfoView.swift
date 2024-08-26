@@ -40,6 +40,7 @@ struct OfflineInfoView: View {
             
             ColoredRoundedButton(title: "Go to offline") {
                 model.offline = true
+                model.isDataLoaded = false
                 model.loadInitialMangas(context: modelContext)
                 presentationMode.wrappedValue.dismiss()
             }

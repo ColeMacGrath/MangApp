@@ -19,7 +19,7 @@ struct LoadingView: View {
                 VStack {
                     RotatingCircles(color: color)
                         .frame(width: 100, height: 100)
-                    Text(message ?? "")
+                    Text(message ?? .emptyString)
                 }
                 .foregroundStyle(color)
             }
@@ -28,7 +28,7 @@ struct LoadingView: View {
             VStack(alignment: .center) {
                 RotatingCircles(color: color)
                     .frame(width: 200, height: 200)
-                Text(message ?? "")
+                Text(message ?? .emptyString)
             }
             .padding()
             .background(Color(uiColor: .secondarySystemGroupedBackground))

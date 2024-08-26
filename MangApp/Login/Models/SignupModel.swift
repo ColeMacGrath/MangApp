@@ -11,21 +11,21 @@ import Foundation
 class SignUpModel {
     var showLoadingView = false
     var showAlertView = false
-    var alertMessage = ""
+    var alertMessage = String()
     var alertType: AlertType = .error
-    var email: String = "" {
+    var email: String = String() {
         didSet {
-            validateEmail()
+            _ = validateEmail()
         }
     }
-    var password: String = "" {
+    var password: String = String() {
         didSet {
-            validatePassword()
+            _ = validatePassword()
         }
     }
-    var confirmedPassword: String = "" {
+    var confirmedPassword: String = String() {
         didSet {
-            validateConfirmedPassword()
+            _ = validateConfirmedPassword()
         }
     }
     var isValidMail: Bool = true

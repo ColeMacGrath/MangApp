@@ -58,8 +58,8 @@ final class Author: Codable, Hashable, Identifiable {
     }
     
     var initials: String {
-        let firstInitial = firstName.first?.uppercased() ?? ""
-        let lastInitial = lastName.first?.uppercased() ?? ""
+        let firstInitial = firstName.first?.uppercased() ?? .emptyString
+        let lastInitial = lastName.first?.uppercased() ?? .emptyString
         return firstInitial + lastInitial
     }
 }

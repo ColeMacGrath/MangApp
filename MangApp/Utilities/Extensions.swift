@@ -31,6 +31,10 @@ extension View {
 }
 
 extension String {
+    static var emptyString: String {
+        return String()
+    }
+    
     var toURL: URL? {
         do {
             let regex = try Regex("[^a-zA-Z0-9-._~:/?#[@]!$&'()*+,;=%]")

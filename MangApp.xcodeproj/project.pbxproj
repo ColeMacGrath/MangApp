@@ -41,6 +41,7 @@
 				Collection/Models/MangaList.swift,
 				Collection/Views/MangasCollectonView.swift,
 				Collection/Views/OfflineInfoView.swift,
+				"Collection/Views/Sub Views/LoadingMessageView.swift",
 				Home/Models/DashboardModel.swift,
 				Home/Views/AboutView.swift,
 				Home/Views/DashboardView.swift,

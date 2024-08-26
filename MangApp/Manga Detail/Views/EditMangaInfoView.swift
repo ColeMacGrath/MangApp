@@ -41,7 +41,7 @@ struct EditMangaInfoView: View {
                 }
             }
             
-            .navigationTitle("Editing \(model.ownManga?.manga.title ?? "")")
+            .navigationTitle("Editing \(model.ownManga?.manga.title ?? .emptyString)")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
@@ -57,7 +57,7 @@ struct EditMangaInfoView: View {
 #Preview {
     NavigationStack {
         EditMangaInfoView()
-            .environment(OwnMangaModel(manga: .defaultManga, ownManga: OwnManga(id: "", volumesOwned: [1, 2, 3, 5], completeCollection: false, readingVolume: 1, manga: Manga.defaultManga)))
+            .environment(OwnMangaModel(manga: .defaultManga, ownManga: OwnManga(id: .emptyString, volumesOwned: [1, 2, 3, 5], completeCollection: false, readingVolume: 1, manga: Manga.defaultManga)))
     }
     
 }

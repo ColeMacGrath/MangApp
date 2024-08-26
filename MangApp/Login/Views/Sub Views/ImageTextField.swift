@@ -28,9 +28,9 @@ struct ImageTextField: View {
                 }
                 
                 if isSecure {
-                    SecureField(placeholderText ?? "", text: $text)
+                    SecureField(placeholderText ?? .emptyString, text: $text)
                 } else {
-                    TextField(placeholderText ?? "", text: $text)
+                    TextField(placeholderText ?? .emptyString, text: $text)
                 }
                 
             }.overlay(
@@ -48,6 +48,6 @@ struct ImageTextField: View {
 }
 
 #Preview {
-    ImageTextField(text: .constant(""), isValid: .constant(false), outsideTitle: "Outside Title", image: Image(systemName: "person"), invalidMessage: "Invalid Message")
+    ImageTextField(text: .constant(.emptyString), isValid: .constant(false), outsideTitle: "Outside Title", image: Image(systemName: "person"), invalidMessage: "Invalid Message")
         .padding()
 }

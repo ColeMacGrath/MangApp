@@ -16,10 +16,7 @@ struct DashboardView: View {
         @Bindable var model = model
         NavigationStack {
             if model.isLoading {
-                HStack(alignment: .center) {
-                    ProgressView()
-                    Text("Loading...")
-                }.foregroundStyle(.secondary)
+                LoadingMessageView()
             } else if model.showErrorView {
                 ErrorView(title: "Something went wrong at loading mangas", button: ColoredRoundedButton(title: "Retry", action: {
                     model.loadMangas()

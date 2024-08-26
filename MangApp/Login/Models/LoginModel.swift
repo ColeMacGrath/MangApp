@@ -9,14 +9,14 @@ import Foundation
 
 @Observable
 class LoginModel {
-    var email: String = "" {
+    var email: String = String() {
         didSet {
-            validateEmail()
+            _ = validateEmail()
         }
     }
-    var password: String = "" {
+    var password: String = String() {
         didSet {
-            validatePassword()
+            _ = validatePassword()
         }
     }
     var showLoadingView: Bool = false

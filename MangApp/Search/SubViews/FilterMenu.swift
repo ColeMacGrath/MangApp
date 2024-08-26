@@ -75,7 +75,7 @@ struct FilterMenu: View {
             }
             
         } label: {
-            Label("Filters", systemImage: "slider.horizontal.3")
+            Label(String(), systemImage: "slider.horizontal.3")
         }
     }
     

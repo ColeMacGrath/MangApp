@@ -12,6 +12,9 @@ class AuthorsModel {
     private var authorsLoaded = false
     var interactor: NetworkInteractor
     var authors: [Author] = []
+    var isLoading: Bool = false
+    var showErrorView: Bool = false
+    var isDataLoaded = false
     
     init(interactor: NetworkInteractor = NetworkInteractor.shared) {
         self.interactor = interactor
@@ -23,11 +26,20 @@ class AuthorsModel {
             return
         }
         
+        guard !isDataLoaded else { return }
         guard let url = URL.authors else { return }
         let request = URLRequest(url: url)
         Task {
-            guard let response = await interactor.perform(request: request, responseType: [Author].self)?.data else { return }
+            isLoading = true
+            showErrorView = false
+            guard let response = await interactor.perform(request: request, responseType: [Author].self)?.data else {
+                isLoading = false
+                showErrorView = true
+                return
+            }
             authors = response
+            isDataLoaded = true
+            isLoading = false
         }
     }
 }

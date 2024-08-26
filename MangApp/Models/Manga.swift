@@ -17,10 +17,10 @@ class Manga: Codable, Hashable, Identifiable {
     var startDate: Date?
     var score: Double
     var sypnosis: String?
-    var genres: [Genre]
-    var authors: [Author]
-    var demographics: [Demographic]
     var themes: [Theme]?
+    var genres: [Genre]
+    var demographics: [Demographic]
+    var authors: [Author]
     var titleEnglish: String?
     var background: String?
     var volumes: Int?

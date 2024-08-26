@@ -25,7 +25,7 @@ struct MangaDetailTitlesView: View {
         .font(.title)
         .padding(.horizontal)
         
-        Text(manga.titleJapanese ?? "")
+        Text(manga.titleJapanese ?? .emptyString)
             .foregroundStyle(.secondary)
             .font(.title2)
             .padding([.bottom, .horizontal])

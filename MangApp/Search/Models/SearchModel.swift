@@ -16,8 +16,8 @@ class SearchModel {
     private var itemsPerPage = 20
     var isLoading: Bool = false
     var hasError: Bool = false
-    var errorMessage: String = ""
-    var searchText: String = ""
+    var errorMessage: String = String()
+    var searchText: String = String()
     var selectedSearchType: SearchType = .title
     var availableGenres: [Genre] = []
     var availableDemographics: [Demographic] = []
@@ -140,7 +140,7 @@ class SearchModel {
         guard !(fromPicker && searchText.isEmpty) else { return }
         
         if !keepingValues {
-            searchText = ""
+            searchText = String()
             selectedGenres.removeAll()
             selectedDemographics.removeAll()
             selectedThemes.removeAll()
@@ -150,7 +150,9 @@ class SearchModel {
         currentPage = 1
         totalItems = 0
         hasError = false
-        errorMessage = ""
+        errorMessage = String()
+        
+        guard !selectedGenres.isEmpty || !selectedDemographics.isEmpty || !selectedThemes.isEmpty || !searchText.isEmpty else { return }
         loadInitialMangas()
     }
     

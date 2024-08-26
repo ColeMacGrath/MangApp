@@ -14,36 +14,39 @@ struct AuthorsView: View {
     @State private var path = NavigationPath()
     
     var body: some View {
-        NavigationStack(path: $path) {
-            if model.authors.isEmpty {
-                HStack {
-                    ProgressView()
-                    Text("Loading...")
-                }.foregroundStyle(.secondary)
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: columns) {
-                        ForEach(model.authors) { author in
-                            VStack(alignment: .center) {
-                                AuthorProfilePlaceHolder(author: author)
-                            }
-                            .padding()
-                            .onTapGesture {
-                                path.append(author)
+        if model.showErrorView {
+            ErrorView(title: "Something went wrong at loading authors", button: ColoredRoundedButton(title: "Retry", action: {
+                model.fetchAuthors()
+            })).padding()
+        } else {
+            NavigationStack(path: $path) {
+                if model.isLoading {
+                    LoadingMessageView()
+                } else {
+                    ScrollView {
+                        LazyVGrid(columns: columns) {
+                            ForEach(model.authors) { author in
+                                VStack(alignment: .center) {
+                                    AuthorProfilePlaceHolder(author: author)
+                                }
+                                .padding()
+                                .onTapGesture {
+                                    path.append(author)
+                                }
                             }
                         }
                     }
-                }
-                .navigationDestination(for: Author.self) { author in
-                    MangasCollectonView(title: author.fullName)
-                        .environment(CollectionModel(collectionType: .author, queryPaths: [author.id]))
+                    .navigationDestination(for: Author.self) { author in
+                        MangasCollectonView(title: author.fullName)
+                            .environment(CollectionModel(collectionType: .author, queryPaths: [author.id]))
+                    }
                 }
             }
-        }
-        .navigationTitle("Authors")
-        .onAppear {
-            model.fetchAuthors()
-            updateColumns(isCompact: horizontalSizeClass == .compact)
+            .navigationTitle("Authors")
+            .onAppear {
+                model.fetchAuthors()
+                updateColumns(isCompact: horizontalSizeClass == .compact)
+            }
         }
     }
     

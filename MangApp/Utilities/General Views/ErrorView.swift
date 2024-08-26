@@ -32,5 +32,5 @@ struct ErrorView: View {
 }
 
 #Preview {
-    ErrorView(button: ColoredRoundedButton(title: "", action: {}))
+    ErrorView(button: ColoredRoundedButton(title: .emptyString, action: {}))
 }

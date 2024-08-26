@@ -17,19 +17,38 @@ struct MangasCollectonView: View {
     
     var body: some View {
         @Bindable var model = model
-        
-        if  model.mangaList.isEmpty && model.ownMangas.isEmpty,
-            model.isLoading {
-            HStack(alignment: .center) {
-                ProgressView()
-                Text("Loading..")
-            }.foregroundStyle(.secondary)
+        if model.showErrorView {
+            ErrorView(title: "Something went wrong at loading authors", button: ColoredRoundedButton(title: "Retry", action: {
+                model.isDataLoaded = false
+                model.loadInitialMangas(context: modelContext)
+            })).padding()
+        } else if model.mangaList.isEmpty && model.ownMangas.isEmpty,
+                  model.isLoading {
+            LoadingMessageView()
         } else {
-            
             GeometryReader { geometry in
                 ScrollView {
+                    if model.offline {
+                        HStack {
+                            SearchBar(text: $model.searchText) {
+                                model.filterMangas()
+                            }
+                            .padding(.leading)
+                            FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
+                                model.resetToInitialState(context: modelContext)
+                            })
+                        }
+                        
+                        if !model.searchText.isEmpty {
+                            SearchPicker(selectionType: $model.selectedSearchType)
+                                .padding(.horizontal)
+                                .onChange(of: model.selectedSearchType) {
+                                    model.filterMangas()
+                                }
+                        }
+                    }
                     LazyVGrid(columns: columns) {
-                        ForEach(model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList) { manga in
+                        ForEach(model.filteredMangas.map { $0.manga }) { manga in
                             NavigationLink(destination: MangaDetailView(manga: manga)
                                 .environment(self.model)) {
                                     MangaItemView(manga: manga)
@@ -41,14 +60,14 @@ struct MangasCollectonView: View {
                                 }
                         }
                     }
+                    
                 }
                 .toolbar {
                     if model.collectionType == .collection {
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
                                 if model.offline {
-                                    model.offline = false
-                                    model.loadInitialMangas()
+                                    model.loadOfflineManas()
                                 } else {
                                     showOfflineModeModal = true
                                 }
@@ -76,7 +95,11 @@ struct MangasCollectonView: View {
                     }
                 }
             }
+        }
     }
+    
+    private func getCurrentMangas() -> [Manga] {
+        model.offline ? model.filteredMangas.map { $0.manga } : model.collectionType == .collection ? model.ownMangas.map { $0.manga } : model.mangaList
     }
     
     private func updateColumns(isCompact: Bool) {
