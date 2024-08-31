@@ -6,33 +6,59 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct AboutView: View {
+    @Environment(\.modelContext) private var context: ModelContext
     @Environment(\.presentationMode) private var presentationMode
     @Environment(LoginModel.self) private var model
+    private let appVersion = Bundle.main.infoDictionary?["CFBundleShortVersionString"] as? String
+    private let appBuild = Bundle.main.infoDictionary?["CFBundleVersion"] as? String
+    
     var body: some View {
         @Bindable var model = model
         NavigationStack {
-            Form {
-                List {
-                    SubtitleRowView(title: "Name", subtitle: "Juan Pérez")
-                    SubtitleRowView(title: "Mail", subtitle: "Mail@mail.com")
+            ZStack {
+                Color(UIColor.systemGroupedBackground)
+                    .ignoresSafeArea()
+                
+                VStack {
+                    Image("appicon")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .frame(height: 150)
                     
-                    Section {
-                        Button("Sign out", role: .destructive) {
-                            model.logOut()
+                    List {
+                        if let appVersion, let appBuild {
+                            Text("App Version: \(appVersion)")
+                            Text("App Build: \(appBuild)")
+                        }
+                        
+                        Section {
+                            HStack {
+                                Spacer()
+                                Button("Sign out", role: .destructive) {
+                                    model.logOut()
+                                }
+                                Spacer()
+                            }
                         }
                     }
+                    
+                    HStack {
+                        Text("Made with \("♥️") in")
+                        Image(systemName: "swift")
+                    }
+                    .foregroundStyle(.secondary)
                 }
-            }
-#if !os(macOS)
-            .navigationBarTitle("About", displayMode: .inline)
-#endif
-            .toolbar {
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("Done") {
-                        presentationMode.wrappedValue.dismiss()
-                    }.buttonStyle(.automatic)
+                .padding()
+                .navigationBarTitle("MangaApp", displayMode: .inline)
+                .toolbar {
+                    ToolbarItem(placement: .confirmationAction) {
+                        Button("Done") {
+                            presentationMode.wrappedValue.dismiss()
+                        }
+                    }
                 }
             }
         }

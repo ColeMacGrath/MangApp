@@ -125,7 +125,6 @@ class CollectionModel {
         do {
             ownMangas = try context.fetch(fetchDescriptor)
             filteredMangas = ownMangas
-            print("HERE ***", filteredMangas.count)
             setLocalFilters(ownMangas: ownMangas)
             isDataLoaded = true
         } catch {

@@ -26,7 +26,6 @@ class DashboardModel {
             bestMangas.setMangaArray()
             return
         }
-        guard !isDataLoaded else { return }
         isLoading = true
         Task {
             async let collectionResponse = await loadCollection()

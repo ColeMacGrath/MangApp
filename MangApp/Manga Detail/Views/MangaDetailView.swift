@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MangaDetailView: View {
+    @Namespace private var namespace
     @Environment(\.horizontalSizeClass) private var horizontalSize
     @Environment(\.presentationMode) private var presentationMode
     @Environment(\.modelContext) private var modelContext
@@ -30,6 +31,7 @@ struct MangaDetailView: View {
                     ScoreView(score: manga.score)
                     
                     AsyncMangaImageView(geometry: geometry, url: manga.mainPicture?.toURL)
+                        .matchedTransitionSource(id: manga.mainPictureURL, in: namespace)
                     
                     MangaDetailTitlesView(manga: manga)
                         .environment(model)

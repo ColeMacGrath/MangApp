@@ -12,26 +12,17 @@ struct MangaHorizontalScrollView: View {
     var mangas: [Manga]
     
     var body: some View {
-        VStack {
+        VStack(alignment: .leading) {
             HStack {
                 Text(title)
                     .font(.title2)
                     .fontWeight(.bold)
                     .padding(.leading)
-                Spacer()
-                Button(action: {
-                    print("See All")
-                }) {
-                    Text("See all")
-                        .font(.caption)
-                        .fontWeight(.bold)
-                        .padding(.trailing)
-                }
             }
             .padding(.top)
             ScrollView(.horizontal, showsIndicators: false) {
                 LazyHStack {
-                    ForEach(mangas) { manga in
+                    ForEach(mangas.prefix(10)) { manga in
                         NavigationLink(destination: MangaDetailView(manga: manga)) {
                             MangaItemView(manga: manga)
                         }

@@ -8,6 +8,7 @@
 import SwiftUI
 
 struct MangasCollectonView: View {
+    @Namespace private var namespace
     @Environment(\.horizontalSizeClass) var horizontalSizeClass
     @Environment(CollectionModel.self) private var model
     @Environment(\.modelContext) private var modelContext
@@ -18,7 +19,7 @@ struct MangasCollectonView: View {
     var body: some View {
         @Bindable var model = model
         if model.showErrorView {
-            ErrorView(title: "Something went wrong at loading authors", button: ColoredRoundedButton(title: "Retry", action: {
+            ErrorView(title: "An error occurred while loading authors.", button: ColoredRoundedButton(title: "Retry", action: {
                 model.isDataLoaded = false
                 model.loadInitialMangas(context: modelContext)
             })).padding()
@@ -48,16 +49,20 @@ struct MangasCollectonView: View {
                         }
                     }
                     LazyVGrid(columns: columns) {
-                        ForEach(model.filteredMangas.map { $0.manga }) { manga in
+                        ForEach(getCurrentMangas()) { manga in
+                               
                             NavigationLink(destination: MangaDetailView(manga: manga)
+                                .navigationTransition(.zoom(sourceID: manga.mainPictureURL, in: namespace))
                                 .environment(self.model)) {
                                     MangaItemView(manga: manga)
+                                        
                                         .onAppear {
                                             if manga == model.mangaList.last {
                                                 model.loadMoreMangas()
                                             }
                                         }
                                 }
+                                
                         }
                     }
                     

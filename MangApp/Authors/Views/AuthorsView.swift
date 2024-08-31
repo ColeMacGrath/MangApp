@@ -15,7 +15,7 @@ struct AuthorsView: View {
     
     var body: some View {
         if model.showErrorView {
-            ErrorView(title: "Something went wrong at loading authors", button: ColoredRoundedButton(title: "Retry", action: {
+            ErrorView(title: "An error occurred while loading authors.", button: ColoredRoundedButton(title: "Retry", action: {
                 model.fetchAuthors()
             })).padding()
         } else {
