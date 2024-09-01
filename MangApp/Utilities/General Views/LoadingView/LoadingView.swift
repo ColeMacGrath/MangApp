@@ -31,7 +31,9 @@ struct LoadingView: View {
                 Text(message ?? .emptyString)
             }
             .padding()
+#if os(iOS)
             .background(Color(uiColor: .secondarySystemGroupedBackground))
+#endif
             .cornerRadius(20)
             .shadow(radius: 10)
             .transition(.scale)

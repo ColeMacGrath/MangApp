@@ -50,12 +50,12 @@ struct MangasCollectonView: View {
                     }
                     LazyVGrid(columns: columns) {
                         ForEach(getCurrentMangas()) { manga in
-                               
                             NavigationLink(destination: MangaDetailView(manga: manga)
+#if os(iOS)
                                 .navigationTransition(.zoom(sourceID: manga.mainPictureURL, in: namespace))
+#endif
                                 .environment(self.model)) {
                                     MangaItemView(manga: manga)
-                                        
                                         .onAppear {
                                             if manga == model.mangaList.last {
                                                 model.loadMoreMangas()
@@ -63,12 +63,13 @@ struct MangasCollectonView: View {
                                         }
                                 }
                                 
-                        }
-                    }
+                        }.background(.clear)
+                    }.background(.clear)
                     
                 }
                 .toolbar {
                     if model.collectionType == .collection {
+#if os(iOS)
                         ToolbarItem(placement: .navigationBarTrailing) {
                             Button(action: {
                                 if model.offline {
@@ -80,6 +81,7 @@ struct MangasCollectonView: View {
                                 model.offline ? Image(systemName: "bolt.horizontal.icloud.fill") : Image(systemName: "bolt.horizontal.icloud")
                             }
                         }
+#endif
                     }
                 }
                 .navigationTitle(title)

@@ -17,7 +17,9 @@ struct LoginBodyView: View {
         Group {
             ImageTextField(text: $email, isValid: $isValidMail, outsideTitle: "Email", image: Image(systemName: "person"), placeholderText: "Enter email", invalidMessage: "Invalid email")
                 .textContentType(.emailAddress)
+#if os(iOS)
                 .keyboardType(.emailAddress)
+#endif
             ImageTextField(text: $password, isValid: $isValidPassword, outsideTitle: "Password", image: Image(systemName: "lock"), placeholderText: "Enter password", invalidMessage: "Password must be at least 8 characters", isSecure: true)
         }
         .padding(.horizontal)

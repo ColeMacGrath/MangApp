@@ -56,7 +56,7 @@ struct MangaDetailsListView: View {
             if modalPresentation {
                 NavigationStack {
                     contentView
-#if !os(macOS)
+#if os(iOS)
                         .navigationBarTitle("Manga Details", displayMode: .inline)
 #endif
                         .toolbar {
@@ -81,7 +81,7 @@ struct MangaDetailsListView: View {
                     getValue(for: key).map { (title: fieldTitles[key], value: $0) }
                 }
                 
-               
+                
                 
                 if !sectionRows.isEmpty {
                     Section(header: Text(section.section)) {
@@ -94,9 +94,7 @@ struct MangaDetailsListView: View {
                                       rowTitle == "Visit in MyAnimeList",
                                       let url = manga.url?.toURL {
                                 Button(action: {
-#if os(macOS)
-                                    NSWorkspace.shared.open(url)
-#else
+#if os(iOS)
                                     UIApplication.shared.open(url)
 #endif
                                 }) {

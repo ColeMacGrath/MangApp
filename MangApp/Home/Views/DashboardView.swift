@@ -33,7 +33,7 @@ struct DashboardView: View {
                         }.frame(height: model.mangaCollection.isEmpty ? (geometry.size.height * 0.6) : horizontalSizeClass == .compact ? geometry.size.height * 1.3 : geometry.size.height * 1.6)
                             .navigationTitle("Home")
                             .toolbar {
-#if !os(macOS)
+#if os(iOS)
                                 ToolbarItem(placement: .topBarTrailing) {
                                     Button {
                                         showAboutView = true

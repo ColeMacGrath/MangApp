@@ -8,15 +8,6 @@
 import Foundation
 import SwiftUI
 
-struct SemiTransparentModifier: ViewModifier {
-    func body(content: Content) -> some View {
-        content
-            .textFieldStyle(.roundedBorder)
-            .opacity(0.7)
-            .padding(.horizontal)
-    }
-}
-
 struct ButtonStyleModifier: ViewModifier {
     var backgroundColor: Color = .pink
     var foregroundColor: Color = .white
@@ -29,33 +20,6 @@ struct ButtonStyleModifier: ViewModifier {
             .background(backgroundColor)
             .cornerRadius(10)
         
-    }
-}
-
-struct DefaultImagePlaceholder: ViewModifier {
-    var isLoader: Bool
-    
-    init(isLoader: Bool = false) {
-        self.isLoader = isLoader
-    }
-    
-    func body(content: Content) -> some View {
-        GeometryReader { geometry in
-            content
-                .foregroundStyle(.gray)
-                .overlay {
-                    if isLoader {
-                        ProgressView()
-                            .font(.largeTitle)
-                    } else {
-                        Image(systemName: "book.circle")
-                            .font(.largeTitle)
-                            .foregroundStyle(.white)
-                    }
-                }
-        }
-        .aspectRatio(0.66, contentMode: .fit)
-        .padding()
     }
 }
 
@@ -112,6 +76,7 @@ struct ToastModifier: ViewModifier {
                         .shadow(radius: 10)
                         .padding()
                         .offset(y: dragOffset.height)
+#if os(iOS)
                         .gesture(
                             DragGesture()
                                 .onChanged { value in
@@ -130,6 +95,7 @@ struct ToastModifier: ViewModifier {
                                     }
                                 }
                         )
+#endif
                         .onAppear {
                             withAnimation(Animation.easeInOut(duration: 0.5)) {
                                 dragOffset = .zero
@@ -151,7 +117,7 @@ struct ToastModifier: ViewModifier {
     }
     
     private func resetState() {
-            dragOffset = .zero
-            opacity = 1.0
-        }
+        dragOffset = .zero
+        opacity = 1.0
+    }
 }

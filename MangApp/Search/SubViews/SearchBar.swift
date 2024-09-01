@@ -15,7 +15,9 @@ struct SearchBar: View {
         TextField("Search...", text: $text, onCommit: onCommit)
             .padding(7)
             .padding(.horizontal, 25)
+#if os(iOS)
             .background(Color(.systemGray5))
+#endif
             .cornerRadius(8)
             .overlay(
                 HStack {

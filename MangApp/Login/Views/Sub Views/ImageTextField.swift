@@ -29,8 +29,14 @@ struct ImageTextField: View {
                 
                 if isSecure {
                     SecureField(placeholderText ?? .emptyString, text: $text)
+#if !os(iOS)
+                        .textFieldStyle(PlainTextFieldStyle())
+#endif
                 } else {
                     TextField(placeholderText ?? .emptyString, text: $text)
+#if !os(iOS)
+                        .textFieldStyle(PlainTextFieldStyle())
+#endif
                 }
                 
             }.overlay(

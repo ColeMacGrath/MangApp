@@ -71,6 +71,7 @@ struct MangaDetailView: View {
                 model.loadOwn(manga: manga, offline: collectionModel.offline, context: modelContext)
             }
             .toolbar {
+#if os(iOS)
                 if model.ownManga != nil {
                     ToolbarItem(placement: .topBarLeading) {
                         if let volumes = manga.volumes,
@@ -93,6 +94,7 @@ struct MangaDetailView: View {
                         }
                     }
                 }
+#endif
             }
             .sheet(isPresented: $isDetailViewPresented) {
                 MangaDetailsListView(manga: manga, modalPresentation: true)
@@ -104,12 +106,5 @@ struct MangaDetailView: View {
                     .presentationDragIndicator(.visible)
             }
         }
-    }
-}
-
-#Preview {
-    NavigationStack {
-        MangaDetailView(manga: Manga.defaultManga)
-            .environment(OwnMangaModel(manga: .defaultManga, ownManga: OwnManga(id: .emptyString, volumesOwned: [1], completeCollection: false, readingVolume: 1, manga: Manga.defaultManga)))
     }
 }

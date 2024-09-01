@@ -42,7 +42,9 @@ struct EditMangaInfoView: View {
             }
             
             .navigationTitle("Editing \(model.ownManga?.manga.title ?? .emptyString)")
+#if os(iOS)
             .navigationBarTitleDisplayMode(.inline)
+#endif
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Cancel") {

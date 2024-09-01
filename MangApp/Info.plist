@@ -7,8 +7,6 @@
 		<string>com.moisesCordova.MangApp.tokenRefresh</string>
 	</array>
 	<key>UIBackgroundModes</key>
-	<array>
-		<string>fetch</string>
-	</array>
+	<array/>
 </dict>
 </plist>

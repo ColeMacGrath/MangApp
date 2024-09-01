@@ -19,8 +19,10 @@ struct AboutView: View {
         @Bindable var model = model
         NavigationStack {
             ZStack {
+#if os(iOS)
                 Color(UIColor.systemGroupedBackground)
                     .ignoresSafeArea()
+#endif
                 
                 VStack {
                     Image("appicon")
@@ -52,7 +54,9 @@ struct AboutView: View {
                     .foregroundStyle(.secondary)
                 }
                 .padding()
+#if os(iOS)
                 .navigationBarTitle("MangaApp", displayMode: .inline)
+#endif
                 .toolbar {
                     ToolbarItem(placement: .confirmationAction) {
                         Button("Done") {

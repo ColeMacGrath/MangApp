@@ -32,7 +32,11 @@ struct ColoredRoundedButton: View {
             .background(backgroundColor)
             .cornerRadius(10)
             .padding(.horizontal)
-        }.disabled(asLoader)
+        }
+        .disabled(asLoader)
+#if !os(iOS)
+        .buttonStyle(ClearButtonStyle())
+#endif
     }
 }
 

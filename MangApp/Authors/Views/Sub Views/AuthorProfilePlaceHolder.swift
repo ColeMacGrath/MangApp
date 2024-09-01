@@ -11,7 +11,7 @@ struct AuthorProfilePlaceHolder: View {
     var author: Author
     var body: some View {
         Circle()
-            .fill(Color(uiColor: .systemGray4))
+            .fill(Color(.tertiarySystemFill))
             .overlay(Text(author.initials))
             .foregroundColor(.white)
             .font(.system(size: 24, weight: .bold))
@@ -21,5 +21,5 @@ struct AuthorProfilePlaceHolder: View {
 }
 
 #Preview {
-    AuthorProfilePlaceHolder(author: Author(id: .emptyString, lastName: .emptyString, firstName: .emptyString, role: .emptyString))
+    AuthorProfilePlaceHolder(author: Author(id: .emptyString, lastName: "Last Name", firstName: "First Name", role: .emptyString))
 }

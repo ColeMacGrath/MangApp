@@ -5,10 +5,11 @@
 //  Created by Moisés Córdova on 2024-08-10.
 //
 
+#if os(iOS)
 import Foundation
 import CoreMotion
 
-#if !os(macOS)
+
 class MotionManager: ObservableObject {
     @Published var yRotation: Double = 0.0
     private var motionManager: CMMotionManager

@@ -49,13 +49,7 @@ struct SearchView: View {
                     }
                     .navigationTitle("Search Mangas")
                     .toolbar {
-#if os(macOS)
-                        if model.filtersLoaded {
-                            FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
-                                model.resetToInitialState()
-                            })
-                        }
-#else
+#if os(iOS)
                         ToolbarItem(placement: .topBarTrailing) {
                             if model.filtersLoaded {
                                 FilterMenu(genres: model.availableGenres, selectedGenres: $model.selectedGenres, demographics: model.availableDemographics, selectedDemographics: $model.selectedDemographics, themes: model.availableThemes, selectedThemes: $model.selectedThemes, resetAction: {
@@ -65,6 +59,7 @@ struct SearchView: View {
                         }
 #endif
                     }
+
                     .onAppear {
                         model.fetchFilters()
                         //updateColumns(isCompact: horizontalSizeClass == .compact)

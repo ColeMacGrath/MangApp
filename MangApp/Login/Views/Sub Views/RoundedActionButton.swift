@@ -16,7 +16,18 @@ struct RoundedActionButton: View {
             Text(title)
                 .applyButtonStyle(backgroundColor: backgroundColor)
         }
+#if !os(iOS)
+        .buttonStyle(ClearButtonStyle())
+#endif
         .padding(.horizontal)
+    }
+}
+
+struct ClearButtonStyle: ButtonStyle {
+    func makeBody(configuration: Configuration) -> some View {
+        configuration.label
+            .background(Color.clear)
+            .opacity(configuration.isPressed ? 0.7 : 1.0)
     }
 }
 

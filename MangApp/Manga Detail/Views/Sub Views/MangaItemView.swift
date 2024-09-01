@@ -9,7 +9,6 @@ import SwiftUI
 
 struct MangaItemView: View {
     var manga: Manga
-    @State private var isPressed = false
     
     var body: some View {
         VStack {
@@ -29,14 +28,8 @@ struct MangaItemView: View {
                     }
                 }
             } else {
-#if os(macOS)
-                Image("manga_cover_image")
-                    .mangaViewImageModifier()
-#else
                 Image(.mangaCover)
                     .mangaViewImageModifier()
-#endif
-                    
             }
             Text(manga.title)
                 .font(.headline)

@@ -28,7 +28,9 @@ struct SelectableItemsView: View {
                         screen.label
                     }
                 }
+#if os(iOS)
                 .listStyle(.sidebar)
+#endif
                 .navigationTitle("MangApp")
             } detail: {
                 if let screen {

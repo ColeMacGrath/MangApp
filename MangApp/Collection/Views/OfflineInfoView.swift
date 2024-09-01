@@ -44,7 +44,7 @@ struct OfflineInfoView: View {
                 model.loadInitialMangas(context: modelContext)
                 presentationMode.wrappedValue.dismiss()
             }
-            ColoredRoundedButton(title: "Cancel", backgroundColor: Color(uiColor: .systemGray4), foregroundColor: .black) {
+            ColoredRoundedButton(title: "Cancel", backgroundColor: .secondary/*Color(uiColor: .systemGray4)*/, foregroundColor: .black) {
                 presentationMode.wrappedValue.dismiss()
             }
         }

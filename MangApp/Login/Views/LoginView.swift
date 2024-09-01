@@ -13,10 +13,8 @@ struct LoginView: View {
     var body: some View {
         @Bindable var model = model
         GeometryReader { geometry in
-#if !os(visionOS)
             Color(.loginBackground)
                 .edgesIgnoringSafeArea(.all)
-#endif
             VStack {
                 if horizontalSizeClass == .compact {
                     LoginHeader()
@@ -33,7 +31,7 @@ struct LoginView: View {
                     RoundedActionButton(title: "Sign up", backgroundColor: .pink) {
                         model.showSignUpView = true
                     }
-#if !os(macOS)
+#if os(iOS)
                     .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
                         SelectableItemsView()
                     }
@@ -65,7 +63,7 @@ struct LoginView: View {
                             
                             Spacer()
                         }
-#if !os(macOS)
+#if os(iOS)
                         .fullScreenCover(isPresented: $model.interactor.isLoggedIn) {
                             SelectableItemsView()
                         }

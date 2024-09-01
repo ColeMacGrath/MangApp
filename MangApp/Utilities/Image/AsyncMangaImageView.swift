@@ -9,7 +9,7 @@ import SwiftUI
 
 struct AsyncMangaImageView: View {
     var geometry: GeometryProxy
-#if !os(macOS)
+#if os(iOS)
     var motionManager = MotionManager()
 #endif
     var url: URL?
@@ -26,9 +26,9 @@ struct AsyncMangaImageView: View {
                 case .success(let image):
                     image
                         .mangaViewImageModifier()
-#if !os(macOS)
+#if os(iOS)
                         .rotation3DEffect(.degrees(angle + motionManager.yRotation), axis: (x: 0, y: 1, z: 0))
-#endif
+
                         .gesture(
                             DragGesture()
                                 .onChanged { gesture in
@@ -43,6 +43,7 @@ struct AsyncMangaImageView: View {
                                     }
                                 }
                         )
+#endif
                 case .empty:
                     RoundedRectangle(cornerRadius: 8)
                         .modifier(DefaultImagePlaceholder(isLoader: true))
